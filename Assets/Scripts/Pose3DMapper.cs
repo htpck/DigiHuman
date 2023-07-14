@@ -292,6 +292,10 @@ public class Pose3DMapper : CharacterMapper
 
         for (int i = 0; i < bodyPartVectors.Length; i++)
         {
+
+            if (i == 23 || i == 24)
+                continue;
+
             if(bodyPartVectors[i].visibility > 0.2f)
                 jointPoints[i].LandmarkPose = bodyPartVectors[i].position;
         }
