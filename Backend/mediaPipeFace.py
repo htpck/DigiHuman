@@ -164,6 +164,7 @@ def Calculate_Face_Mocap(path=None,debug=False):
                     blends.append(face_data.get_blendshape(FaceBlendShape.MouthPucker))
 
                     blends.append(face_data.get_blendshape(FaceBlendShape.MouthShrugUpper))
+                    blends.append(face_data.get_blendshape(FaceBlendShape.MouthShrugLower))
 
                     #should test
                     blends.append(face_data.get_blendshape(FaceBlendShape.JawOpen))
@@ -183,6 +184,18 @@ def Calculate_Face_Mocap(path=None,debug=False):
 
                     blends.append(face_data.get_blendshape(FaceBlendShape.NoseSneerLeft))
                     blends.append(face_data.get_blendshape(FaceBlendShape.NoseSneerRight))
+                    
+                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownRight))
+                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInRight))
+                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutRight))
+                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpRight))                    
+                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownLeft))
+                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInLeft))
+                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutLeft))
+                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpLeft))
+                    
+                    blends.append(face_data.get_blendshape(FaceBlendShape.TongueOut))
+                    
 
                     frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
                     currentTime = cap.get(cv2.CAP_PROP_POS_MSEC)
@@ -297,6 +310,7 @@ def face_holistic(video_path,debug=False):
             blends.append(face_data.get_blendshape(FaceBlendShape.MouthClose))
             blends.append(face_data.get_blendshape(FaceBlendShape.MouthPucker))
             blends.append(face_data.get_blendshape(FaceBlendShape.MouthShrugUpper))
+            blends.append(face_data.get_blendshape(FaceBlendShape.MouthShrugLower))
             blends.append(face_data.get_blendshape(FaceBlendShape.JawOpen))
             blends.append(face_data.get_blendshape(FaceBlendShape.JawLeft))
             blends.append(face_data.get_blendshape(FaceBlendShape.JawRight))
@@ -306,6 +320,15 @@ def face_holistic(video_path,debug=False):
             blends.append(face_data.get_blendshape(FaceBlendShape.BrowOuterUpRight))
             blends.append(face_data.get_blendshape(FaceBlendShape.CheekSquintRight))
             blends.append(face_data.get_blendshape(FaceBlendShape.CheekSquintLeft))
+            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownRight))
+            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInRight))
+            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutRight))
+            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpRight))                    
+            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownLeft))
+            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInLeft))
+            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutLeft))
+            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpLeft))            
+            blends.append(face_data.get_blendshape(FaceBlendShape.TongueOut))
 
             frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
             currentTime = cap.get(cv2.CAP_PROP_POS_MSEC)

@@ -1,4 +1,5 @@
 import math
+import random
 import numpy as np
 from .facedata import FaceData, FaceBlendShape
 from google.protobuf.internal.containers import RepeatedCompositeFieldContainer
@@ -90,10 +91,14 @@ class BlendshapeCalculator():
         return math.sqrt(sum((px - qx) ** 2.0 for px, qx in zip(p, q)))
     def dist2(self,p, q,o):
         return math.sqrt(sum((px - ox) ** 2.0 + (px - qx) ** 2.0 for px, qx,ox in zip(p, q,o)))
+        
+
+    
     def _calculate_mouth_landmarks(self):
         upper_lip = self._get_landmark(self.blend_shape_config.CanonicalPoints.upper_lip)
         upper_outer_lip = self._get_landmark(self.blend_shape_config.CanonicalPoints.upper_outer_lip)
         lower_lip = self._get_landmark(self.blend_shape_config.CanonicalPoints.lower_lip)
+        
 
         mouth_corner_left = self._get_landmark(self.blend_shape_config.CanonicalPoints.mouth_corner_left)
         mouth_corner_right = self._get_landmark(self.blend_shape_config.CanonicalPoints.mouth_corner_right)
@@ -129,8 +134,10 @@ class BlendshapeCalculator():
 
         #mouth is stretched left or right
         mouth_left, mouth_right = self.detect_mouth_Stretch(mouth_center,mouth_corner_left,mouth_corner_right,mouth_smile_left,mouth_smile_right)
-
-
+        
+        tongue_out_value = random.uniform(0, 1)
+        #tongue_out
+        tongue_out = self._face_data.set_blendshape(FaceBlendShape.TongueOut, tongue_out_value)
 
 
         uppest_lip = self._get_landmark(0)
@@ -144,7 +151,7 @@ class BlendshapeCalculator():
         self.detect_Mouth_Roll(lower_lip,upper_lip,upper_outer_lip,lowest_lip)
 
         #mouth pucker
-        self.detect_mouth_pucker(mouth_width,mouth_open_dist)
+        self.detect_mouth_pucker(mouth_width,mouth_open_dist * 18)
 
         #Mouth shrug
         self.detect_mouth_shrug(nose_tip,uppest_lip,lowest_lip)
@@ -268,7 +275,7 @@ class BlendshapeCalculator():
 
         print(mouth_left)
 
-        # self._live_link_face.set_blendshape(ARKitFace.MouthRight, 1 - remap(mouth_left_right, -1.5, 0.0))
+        # self._live_link_face.set_blendshape(ARKitFace.MouthRight, 1 -7 remap(mouth_left_right, -1.5, 0.0))
         #-------------------------------------------------------
 
         #Extra
@@ -441,6 +448,29 @@ class BlendshapeCalculator():
         #Blinks
         self.detect_blinks(get_eye_open_ration)
 
+
+        
+        #IRIS DETECTION
+        
+        # EyeLookInLeft
+        eye_in_left = self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[5])[0] - self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[3])[0]
+        self._face_data.set_blendshape(FaceBlendShape.EyeLookInLeft, self._remap_blendshape(FaceBlendShape.EyeLookInLeft, eye_in_left))
+
+        # EyeLookOutLeft
+        eye_out_left = self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[0])[0] - self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[4])[0]
+        self._face_data.set_blendshape(FaceBlendShape.EyeLookOutLeft, self._remap_blendshape(FaceBlendShape.EyeLookOutLeft, eye_out_left))
+
+        
+
+        # EyeLookInRight
+        eye_in_right = self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[3])[0] - self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[5])[0]
+        self._face_data.set_blendshape(FaceBlendShape.EyeLookInRight, self._remap_blendshape(FaceBlendShape.EyeLookInRight, eye_in_right))
+
+        # EyeLookOutRight
+        eye_out_right = self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[4])[0] - self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[0])[0]
+        self._face_data.set_blendshape(FaceBlendShape.EyeLookOutRight, self._remap_blendshape(FaceBlendShape.EyeLookOutRight, eye_out_right))
+
+        #EYE SQUINT
         squint_left = self.dist(
             self._get_landmark(self.blend_shape_config.CanonicalPoints.squint_left[0]),
             self._get_landmark(self.blend_shape_config.CanonicalPoints.squint_left[1])
@@ -528,7 +558,8 @@ class BlendshapeCalculator():
         self._face_data.set_blendshape(FaceBlendShape.BrowInnerUp, brow_inner_up)
         # print(brow_inner_up)
 
-
+  
+    
     def detect_cheek(self):
         # Cheek is turned over left or right (will be higher when goes right up or left up) (will be 1 when nose also turn over)
 

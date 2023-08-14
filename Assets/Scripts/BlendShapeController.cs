@@ -143,7 +143,7 @@ public class BlendShapeController : MonoBehaviour
     weight = 0
     };
 
-    public BlendShape MouthOpen = new BlendShape(){
+    public BlendShape MouthOpen = new BlendShape(){ //fdgfg
     num = -1,
     weight = 0
     };
@@ -154,6 +154,11 @@ public class BlendShapeController : MonoBehaviour
     };
 
     public BlendShape MouthShrugUpper = new BlendShape(){
+    num = -1,
+    weight = 0
+    };
+
+    public BlendShape MouthShrugLower = new BlendShape(){
     num = -1,
     weight = 0
     };
@@ -232,9 +237,75 @@ public class BlendShapeController : MonoBehaviour
     num = -1,
     weight = 0
     };
+    public BlendShape MouthOpenLowerTeeth = new BlendShape()
+    {
+        
+        num = 1, // Set the blend shape index of the mouth opening for the lower teeth
+        weight = 0 // Set the initial weight as desired
+    };
+    public BlendShape EyeLookDownLeft = new BlendShape()
+    {
+        
+        num = -1, // Set the blend shape index for eye_eyeLookDownLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
 
-    
-    
+    public BlendShape EyeLookDownRight = new BlendShape()
+    {
+        
+        num = -1, // Set the blend shape index for eye_eyeLookDownRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyeLookInLeft = new BlendShape()
+    {
+       
+        num = -1, // Set the blend shape index for eye_eyeLookInLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyeLookInRight = new BlendShape()
+    {
+      
+        num = -1, // Set the blend shape index for eye_eyeLookInRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyeLookOutLeft = new BlendShape()
+    {
+        
+        num = -1, // Set the blend shape index for eye_eyeLookOutLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyeLookOutRight = new BlendShape()
+    {
+       
+        num = -1, // Set the blend shape index for eye_eyeLookOutRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+    public BlendShape EyeLookUpLeft = new BlendShape()
+    {
+
+        num = -1, // Set the blend shape index for eye_eyeLookOutLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyeLookUpRight = new BlendShape()
+    {
+
+        num = -1, // Set the blend shape index for eye_eyeLookOutRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape TongueOut = new BlendShape()
+    {
+
+        num = -1, // Set the blend shape index for eye_eyeLookOutRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+
     public void UpdateBlendShape()
     {
         // Apply deformation weights
@@ -247,8 +318,15 @@ public class BlendShapeController : MonoBehaviour
         
         // Lips
         LipsDirection();
-        
-        
+
+
+        // Update the second SkinnedMeshRenderer (index 1) with the mouth opening blend shape for the lower teeth
+        MouthOpenLowerTeeth.weight = JawOpen.weight;
+        UpdateBlendShapeWeight(MouthOpenLowerTeeth);
+
+        // Update the first SkinnedMeshRenderer (index 0) with the new eye blend shapes
+       
+
         UpdateBlendShapeWeight(MouthLeft);
         UpdateBlendShapeWeight(MouthRight);
         
@@ -278,6 +356,7 @@ public class BlendShapeController : MonoBehaviour
         UpdateBlendShapeWeight(MouthPucker);
         
         UpdateBlendShapeWeight(MouthShrugUpper);
+        UpdateBlendShapeWeight(MouthShrugLower);
         UpdateBlendShapeWeight(JawOpen);
         UpdateBlendShapeWeight(JawLeft);
         UpdateBlendShapeWeight(JawRight);
@@ -286,6 +365,8 @@ public class BlendShapeController : MonoBehaviour
         UpdateBlendShapeWeight(BrowOuterUpLeft);
         UpdateBlendShapeWeight(BrowDownRight);
         UpdateBlendShapeWeight(BrowOuterUpRight);
+
+        UpdateBlendShapeWeight(MouthOpenLowerTeeth);
 
         if (enableCheekSquint)
         {
@@ -315,6 +396,17 @@ public class BlendShapeController : MonoBehaviour
         UpdateBlendShapeWeight(EyeBlinkRight);
         UpdateBlendShapeWeight(EyeSquintLeft);
         UpdateBlendShapeWeight(EyeSquintRight);
+
+        UpdateBlendShapeWeight(EyeLookDownLeft);
+        UpdateBlendShapeWeight(EyeLookDownRight);
+        UpdateBlendShapeWeight(EyeLookInLeft);
+        UpdateBlendShapeWeight(EyeLookInRight);
+        UpdateBlendShapeWeight(EyeLookOutLeft);
+        UpdateBlendShapeWeight(EyeLookOutRight);
+        UpdateBlendShapeWeight(EyeLookUpRight);
+        UpdateBlendShapeWeight(EyeLookUpLeft);
+
+        UpdateBlendShapeWeight(TongueOut);
 
         if (enableEyeWide)
         {
@@ -385,14 +477,23 @@ public class BlendShapeController : MonoBehaviour
     
     private void UpdateBlendShapeWeight(BlendShape blend)
     {
+        
         UpdateBlendShapeWeight(blend.skinnedMeshIndex,blend.num,blend.weight);
+        
     }
     private void UpdateBlendShapeWeight(int skinnedMeshIndex, int blendNum, float blendWeight)
     {
-        if (blendNum != -1)
+        
+
+        if (blendNum != -1) 
         {
             skinnedMeshRenderers[skinnedMeshIndex].SetBlendShapeWeight(blendNum, Mathf.Clamp(blendWeight,0,100));
         }
+        else
+        {
+            //Debug.Log("nbr");
+        }
+        
     }
     
 

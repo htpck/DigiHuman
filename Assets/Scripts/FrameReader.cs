@@ -86,6 +86,7 @@ public class FrameData
     public PoseJsonVector poseData;
     public FaceJson faceData;
     public HandJsonVector handData;
+    
     public int frame;
 }
 
@@ -235,6 +236,7 @@ public class FrameReader : MonoBehaviour
             videoPlayer.frame = faceJson.frame;
             videoPlayer.Play();
             videoPlayer.Pause();
+
         }
     }
 

@@ -19,6 +19,7 @@ __pycache__
 /Backend/dataset/val_label/greyscale.png
 /Backend/dataset/val_inst/greyscale.png
 /Backend/dataset/val_img/greyscale.png
+/Backend/venv/Lib
 /Assets/StreamingAssets
 /Backend/hand_json
 /Backend/json
@@ -51,3 +52,5 @@ __pycache__
 /Backend/mocap.py
 /Assets/*.mp4
 /Assets/Satomi 3d - Anime Style
+/Recordings
+

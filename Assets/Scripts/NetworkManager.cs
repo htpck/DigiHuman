@@ -247,6 +247,7 @@ public class NetworkManager : MonoSingleton<NetworkManager>
                     // Debug.Log(webRequest.downloadHandler.text);
                     FaceJson receivedJson = JsonUtility.FromJson<FaceJson>(webRequest.downloadHandler.text);
                     faceJsons.Add(receivedJson);
+                    
                     // Debug.Log(JsonUtility.FromJson<PoseJson>(webRequest.downloadHandler.text).frame);
                     poseRequest.index += 1;
                     UIManager.Instancce.UpdateProgressBar(((float)receivedJson.frame)/totalFrames);
