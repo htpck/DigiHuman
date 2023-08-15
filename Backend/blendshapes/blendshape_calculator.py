@@ -87,6 +87,7 @@ class BlendshapeCalculator():
         min, max = self.blend_shape_config.config.get(index)
         return self._remap(value, min, max)
 
+    # Two point distance calculation use Euclidean 
     def dist(self,p, q):
         return math.sqrt(sum((px - qx) ** 2.0 for px, qx in zip(p, q)))
     def dist2(self,p, q,o):
@@ -452,24 +453,44 @@ class BlendshapeCalculator():
         
         #IRIS DETECTION
         
-        # EyeLookInLeft
-        eye_in_left = self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[5])[0] - self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[3])[0]
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookInLeft, self._remap_blendshape(FaceBlendShape.EyeLookInLeft, eye_in_left))
-
-        # EyeLookOutLeft
-        eye_out_left = self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[0])[0] - self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[4])[0]
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookOutLeft, self._remap_blendshape(FaceBlendShape.EyeLookOutLeft, eye_out_left))
-
+        # # EyeLookInLeft
+        # eye_in_left = self.dist(
+        #     self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_left[0]),
+        #     self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[0])
+        # )
+        # self._face_data.set_blendshape(FaceBlendShape.EyeLookInLeft, self._remap_blendshape(FaceBlendShape.EyeLookInLeft, eye_in_left))
+        
+        # # EyeLookOutLeft
+        # eye_out_left = self.dist(
+        #     self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_left[1]),
+        #     self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[1])
+        # )
+        # self._face_data.set_blendshape(FaceBlendShape.EyeLookOutLeft, self._remap_blendshape(FaceBlendShape.EyeLookOutLeft, eye_out_left))
+        
+        
+        ## EyeLookUpLeft
+        # eye_up_left = self.dist(
+        #     self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_left[2]),
+        #     self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[3])
+        # )
+        # self._face_data.set_blendshape(FaceBlendShape.EyeLookInLeft, self._remap_blendshape(FaceBlendShape.EyeLookUpLeft, eye_up_left))
+        
+        ## EyeLookDownLeft
+        # eye_down_left = self.dist(
+        #     self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_left[4]),
+        #     self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[6])
+        # )
+        # self._face_data.set_blendshape(FaceBlendShape.EyeLookOutLeft, self._remap_blendshape(FaceBlendShape.EyeLookDownLeft, eye_down_left))
         
 
         # EyeLookInRight
-        eye_in_right = self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[3])[0] - self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[5])[0]
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookInRight, self._remap_blendshape(FaceBlendShape.EyeLookInRight, eye_in_right))
+        # eye_in_right = self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[1])[0]
+        # self._face_data.set_blendshape(FaceBlendShape.EyeLookInRight, self._remap_blendshape(FaceBlendShape.EyeLookInRight, eye_in_right * 2 ))
 
         # EyeLookOutRight
-        eye_out_right = self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[4])[0] - self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[0])[0]
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookOutRight, self._remap_blendshape(FaceBlendShape.EyeLookOutRight, eye_out_right))
-
+        # eye_out_right = self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[0])[0]
+        # self._face_data.set_blendshape(FaceBlendShape.EyeLookOutRight, self._remap_blendshape(FaceBlendShape.EyeLookOutRight, eye_out_right * 2))
+        
         #EYE SQUINT
         squint_left = self.dist(
             self._get_landmark(self.blend_shape_config.CanonicalPoints.squint_left[0]),

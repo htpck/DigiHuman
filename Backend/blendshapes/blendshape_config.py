@@ -41,21 +41,23 @@ class BlendShapeConfig:
             upper_nose = 6
             cheek_squint_left = [359, 342]
             cheek_squint_right = [130, 113]
+            iris_left = [468,469,470,471,472]
+            iris_right = [473,474,475,476,477]
 
         # blend shape type, min and max value
         config = {
             FaceBlendShape.EyeBlinkLeft : (0.40, 0.70),
-            FaceBlendShape.EyeLookDownLeft : (-0.4, 0.0),
-            FaceBlendShape.EyeLookInLeft : (-0.4, 0.0),
-            FaceBlendShape.EyeLookOutLeft : (-0.4, 0.0),
-            FaceBlendShape.EyeLookUpLeft : (-0.4, 0.0),
+            # FaceBlendShape.EyeLookDownLeft : (-0.4, 0.0),
+            # FaceBlendShape.EyeLookInLeft : (-10, 10),
+            # FaceBlendShape.EyeLookOutLeft : (-10, 10),
+            # FaceBlendShape.EyeLookUpLeft : (-2.0, 0.0),
             FaceBlendShape.EyeSquintLeft : (0.37, 0.6),
             FaceBlendShape.EyeWideLeft : (0.9, 1.2),
             FaceBlendShape.EyeBlinkRight : (0.40, 0.70),
-            FaceBlendShape.EyeLookDownRight : (-0.4, 0.0),
-            FaceBlendShape.EyeLookInRight : (-0.4, 0.0),
-            FaceBlendShape.EyeLookOutRight : (-0.4, 0.0),
-            FaceBlendShape.EyeLookUpRight : (-0.4, 0.0),
+            # FaceBlendShape.EyeLookDownRight : (-0.4, 0.0),
+            # FaceBlendShape.EyeLookInRight : (0.0, 0.4),
+            # FaceBlendShape.EyeLookOutRight : (0.0, 2.0),
+            # FaceBlendShape.EyeLookUpRight : (-0.4, 0.0),
             FaceBlendShape.EyeSquintRight : (0.37, 0.6),
             FaceBlendShape.EyeWideRight : (0.9, 1.2),
             # FaceBlendShape.JawForward : (-0.4, 0.0),

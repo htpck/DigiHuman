@@ -475,15 +475,6 @@ def run_server():
 
 
 
-
-
-
-
-
-
-
-
-
 def exit_handler():
     dir = TEMP_FILE_FOLDER
     for f in os.listdir(dir):

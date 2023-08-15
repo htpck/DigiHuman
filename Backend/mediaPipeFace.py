@@ -13,7 +13,6 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_face_mesh = mp.solutions.face_mesh
 
-
 # Draw the face mesh annotations on the image.
 def Show_Frame_Landmarks(image,results):
     image.flags.writeable = True
@@ -185,15 +184,17 @@ def Calculate_Face_Mocap(path=None,debug=False):
                     blends.append(face_data.get_blendshape(FaceBlendShape.NoseSneerLeft))
                     blends.append(face_data.get_blendshape(FaceBlendShape.NoseSneerRight))
                     
-                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownRight))
-                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInRight))
-                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutRight))
-                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpRight))                    
-                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownLeft))
-                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInLeft))
-                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutLeft))
-                    blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpLeft))
-                    
+                    # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownRight))
+                    # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInRight))
+                    # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpRight))  
+                    # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutRight))                  
+                    # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInLeft))
+                    # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutLeft))
+                    # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpLeft))
+                    # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownLeft))
+
+
+
                     blends.append(face_data.get_blendshape(FaceBlendShape.TongueOut))
                     
 
@@ -320,14 +321,17 @@ def face_holistic(video_path,debug=False):
             blends.append(face_data.get_blendshape(FaceBlendShape.BrowOuterUpRight))
             blends.append(face_data.get_blendshape(FaceBlendShape.CheekSquintRight))
             blends.append(face_data.get_blendshape(FaceBlendShape.CheekSquintLeft))
-            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownRight))
-            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInRight))
-            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutRight))
-            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpRight))                    
-            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownLeft))
-            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInLeft))
-            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutLeft))
-            blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpLeft))            
+            # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownRight))
+            # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInRight))
+            # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpRight)) 
+            # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutRight))           
+                   
+            # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookInLeft))
+            # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookOutLeft))
+            # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpLeft)) 
+            # blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookDownLeft))
+
+            
             blends.append(face_data.get_blendshape(FaceBlendShape.TongueOut))
 
             frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
