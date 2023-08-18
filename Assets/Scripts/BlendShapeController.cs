@@ -487,7 +487,11 @@ public class BlendShapeController : MonoBehaviour
 
         if (blendNum != -1) 
         {
-            skinnedMeshRenderers[skinnedMeshIndex].SetBlendShapeWeight(blendNum, Mathf.Clamp(blendWeight,0,100));
+            var clamValue = Mathf.Clamp(blendWeight, 0, 100);
+            if(skinnedMeshIndex == 2 && (blendNum == 14 || blendNum == 13 || blendNum == 15 || blendNum == 12)) {
+                clamValue = Mathf.Clamp(blendWeight*2, 0, 200);
+            }
+            skinnedMeshRenderers[skinnedMeshIndex].SetBlendShapeWeight(blendNum, clamValue);
         }
         else
         {

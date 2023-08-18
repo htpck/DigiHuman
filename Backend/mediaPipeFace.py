@@ -112,7 +112,7 @@ def Calculate_Face_Mocap(path=None,debug=False):
             if results.multi_face_landmarks:
                 for face_landmarks in results.multi_face_landmarks:
                     landmarks = np.array(
-                        [(lm.x, lm.y, lm.z) for lm in face_landmarks.landmark[:468]]
+                        [(lm.x, lm.y, lm.z) for lm in face_landmarks.landmark[:477]]
 
                     )
                     landmarks = landmarks.T
@@ -282,7 +282,7 @@ def face_holistic(video_path,debug=False):
         if results.face_landmarks:
             face_landmarks = results.face_landmarks
             landmarks = np.array(
-                [(lm.x, lm.y, lm.z) for lm in face_landmarks.landmark[:468]]
+                [(lm.x, lm.y, lm.z) for lm in face_landmarks.landmark[:477]]
 
             )
             landmarks = landmarks.T

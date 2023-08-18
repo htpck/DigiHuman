@@ -11,17 +11,17 @@ import uuid
 
 class FaceBlendShape(Enum):
     EyeBlinkLeft = 0
-    EyeLookDownLeft = 1
-    EyeLookInLeft = 2
-    EyeLookOutLeft = 3
+    EyeLookOutLeft = 1
+    EyeLookOutRight = 2
+    EyeLookUpRight = 3
     EyeLookUpLeft = 4
     EyeSquintLeft = 5
     EyeWideLeft = 6
     EyeBlinkRight = 7
-    EyeLookDownRight = 8
+    EyeLookDownLeft = 8
     EyeLookInRight = 9
-    EyeLookOutRight = 10
-    EyeLookUpRight = 11
+    EyeLookInLeft = 10
+    EyeLookDownRight = 11
     EyeSquintRight = 12
     EyeWideRight = 13
     JawForward = 14

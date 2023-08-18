@@ -471,14 +471,8 @@ def upload_face_video():
 
 
 def run_server():
+    
     app.run(debug=True)
-
-
-
-
-
-
-
 
 
 
