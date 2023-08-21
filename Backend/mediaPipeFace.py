@@ -3,6 +3,8 @@ import mediapipe as mp
 import numpy as np
 from blendshapes.blendshape_calculator import BlendshapeCalculator
 from blendshapes.facedata import FaceData, FaceBlendShape
+from blendshapes.calculate_head_pose import CalculateHeadPose
+
 from face_geometry import (
     PCF,
     get_metric_landmarks,
@@ -67,6 +69,7 @@ def Calculate_Face_Mocap(path=None,debug=False):
 
     blendshape_calulator = BlendshapeCalculator()
     face_data = FaceData(filter_size=4)
+    head_pose = CalculateHeadPose()
 
     # pseudo camera internals
     focal_length = image_width
@@ -121,7 +124,7 @@ def Calculate_Face_Mocap(path=None,debug=False):
                         landmarks.copy(), pcf
                     )
                     # calculate and set all the blendshapes
-                    blendshape_calulator.calculate_blendshapes(face_data,metric_landmarks[0:3].T,face_landmarks.landmark)
+                    blendshape_calulator.calculate_blendshapes(face_data,metric_landmarks[0:3].T,face_landmarks.landmark,head_pose)
                     # blends = live_link_face.get_all_blendshapes()
 
                     blends = []

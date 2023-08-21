@@ -4,8 +4,8 @@ import numpy as np
 from .facedata import FaceData, FaceBlendShape
 from google.protobuf.internal.containers import RepeatedCompositeFieldContainer
 from .blendshape_config import BlendShapeConfig
-import csv
-import os
+import json
+from .calculate_head_pose import CalculateHeadPose
 
 
 #Big Thanks to https://github.com/JimWest/MeFaMo for his great repository
@@ -15,13 +15,13 @@ class BlendshapeCalculator():
 
     This class calculates the blendshapes from the given landmarks.
     """
-    eye_up_left_MAX,eye_up_right_MAX,eye_down_right_MAX,eye_out_right_MAX,eye_down_left_MAX,eye_out_left_MAX,eye_in_right_MAX,eye_in_left_MAX = 10,10,10,10,10,10,10,10
-
+    dx_max,dx_min,dy_max,dy_min = -10,10,-10,10
+    eye_close = False
     def __init__(self) -> None:
         self.blend_shape_config = BlendShapeConfig()
 
     def calculate_blendshapes(self, face_data: FaceData, metric_landmarks: np.ndarray,
-                              normalized_landmarks: RepeatedCompositeFieldContainer) -> None:
+                              normalized_landmarks: RepeatedCompositeFieldContainer, calculate_head_pose: CalculateHeadPose) -> None:
         """ Calculate the blendshapes from the given landmarks.
 
         This function calculates the blendshapes from the given landmarks and stores them in the given live_link_face.
@@ -43,6 +43,7 @@ class BlendshapeCalculator():
         self._face_data = face_data
         self._metric_landmarks = metric_landmarks
         self._normalized_landmarks = normalized_landmarks
+        self._calculate_head_pose = calculate_head_pose
 
         self._calculate_mouth_landmarks()
         self._calculate_eye_landmarks()
@@ -441,112 +442,40 @@ class BlendshapeCalculator():
         return ratio
 
     def _calculate_eye_landmarks(self):
-        # Using EAR(Eye Aspect Ratio) for detecting blinks
-        def get_eye_open_ration(points):
-            eye_distance = self._eye_lid_distance(points)
-            max_ratio = 0.285
-            ratio = np.clip(eye_distance / max_ratio, 0, 2)
-            return ratio
 
-        #Blinks
-        self.detect_blinks(get_eye_open_ration)
-
-
-        
-        #IRIS DETECTION
-        
-        # EyeLookInLeft
-        eye_in_left = self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_left["middle"]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[0])
-        )
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookOutRight, self._remap_blendshape(FaceBlendShape.EyeLookOutRight, eye_in_left))
-        
-        # EyeLookInRight
-        eye_in_right = self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_right["middle"]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[0])
-        )
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookUpRight, self._remap_blendshape(FaceBlendShape.EyeLookUpRight, eye_in_right))
-        
-        # EyeLookOutLeft
-        eye_out_left = self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_left["middle"]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[1])
-        )
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookDownLeft, self._remap_blendshape(FaceBlendShape.EyeLookDownLeft, eye_out_left))
-        
-        # EyeLookDownLeft
-        eye_down_left = self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_left["middle"]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[3])
-        )
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookDownRight, self._remap_blendshape(FaceBlendShape.EyeLookDownRight, 0 - eye_down_left))
-        
-        # EyeLookOutRight
-        eye_out_right= self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_right["middle"]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[1])
-        )
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookInLeft, self._remap_blendshape(FaceBlendShape.EyeLookInLeft, eye_out_right))
-        
-        # EyeLookDownRight
-        eye_down_right= self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_right["middle"]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[3])
-        )
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookInRight, self._remap_blendshape(FaceBlendShape.EyeLookInRight, 0 - eye_down_right))
-        
-        # EyeLookUpRight
-        eye_up_right= self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_right["middle"]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_right[6])
-        )
-        if(eye_up_right > 0.59):
-            eye_up_right *= 1.5
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookOutLeft, self._remap_blendshape(FaceBlendShape.EyeLookOutLeft, eye_up_right))
-        
-        # EyeLookUpLeft
-        eye_up_left= self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.iris_left["middle"]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.eye_left[6])
-        )
-        if(eye_up_left > 0.59):
-            eye_up_left *= 1.5
-        self._face_data.set_blendshape(FaceBlendShape.EyeLookUpLeft, self._remap_blendshape(FaceBlendShape.EyeLookUpLeft, eye_up_left))
-        
-        
-        # #CALculate max value
-        # if eye_down_left < self.eye_down_left_MAX:
-        #     self.eye_down_left_MAX = eye_down_left
-        # if eye_down_right < self.eye_down_right_MAX:
-        #     self.eye_down_right_MAX = eye_down_right
-        # if eye_in_left < self.eye_in_left_MAX:
-        #     self.eye_in_left_MAX = eye_in_left
-        # if eye_in_right < self.eye_in_right_MAX:
-        #     self.eye_in_right_MAX = eye_in_right
-        # if eye_out_left < self.eye_out_left_MAX:
-        #     self.eye_out_left_MAX = eye_out_left
-        # if eye_out_right < self.eye_out_right_MAX:
-        #     self.eye_out_right_MAX = eye_out_right
-        # if eye_up_left < self.eye_up_left_MAX:
-        #     self.eye_up_left_MAX = eye_up_left
-        # if eye_up_right < self.eye_up_right_MAX:
-        #     self.eye_up_right_MAX = eye_up_right
-        
-        # #write to file
-        # with open('eye_data_min.csv', mode='a') as eye_data:
-        #     eye_writer = csv.writer(eye_data, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        #     eye_writer.writerow([self.eye_in_left_MAX, self.eye_in_right_MAX, self.eye_out_left_MAX, self.eye_out_right_MAX, self.eye_down_left_MAX, self.eye_down_right_MAX, self.eye_up_left_MAX, self.eye_up_right_MAX])
-            
-        # with open('eye_data_normal-normal.csv', mode='a') as eye_data:
-        #     eye_writer = csv.writer(eye_data, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        #     #add column names if file is empty
-        #     if os.stat('eye_data_normal-right.csv').st_size <= 2:
-        #         eye_writer.writerow(['eye_in_left', 'eye_in_right', 'eye_out_left', 'eye_out_right', 'eye_down_left', 'eye_down_right', 'eye_up_left', 'eye_up_right'])
-        #     eye_writer.writerow([eye_in_left, eye_in_right, eye_out_left, eye_out_right, eye_down_left, eye_down_right, eye_up_left, eye_up_right])
+        self.calculation_blink()
+        right_pupil_pos = self._pupil_position("RIGHT")
+        left_pupil_pos = self._pupil_position("LEFT")
             
 
+        if not self.eye_close:
+            #IRIS DETECTION
+            
+            eye_in_left = left_pupil_pos[0]
+            self._face_data.set_blendshape(FaceBlendShape.EyeLookOutRight, self._remap_blendshape(FaceBlendShape.EyeLookOutRight, eye_in_left))
+            
+            eye_in_right = self._lerp(right_pupil_pos[0],1.21,2)
+            self._face_data.set_blendshape(FaceBlendShape.EyeLookUpRight, self._remap_blendshape(FaceBlendShape.EyeLookUpRight, eye_in_right))
+            
+            eye_out_left = self._lerp(left_pupil_pos[0],1.21,2)
+            self._face_data.set_blendshape(FaceBlendShape.EyeLookDownLeft, self._remap_blendshape(FaceBlendShape.EyeLookDownLeft, eye_out_left))
+            
+            eye_down_left = left_pupil_pos[1]
+            self._face_data.set_blendshape(FaceBlendShape.EyeLookDownRight, self._remap_blendshape(FaceBlendShape.EyeLookDownRight, eye_down_left))
+            
+            eye_out_right = right_pupil_pos[0]
+            self._face_data.set_blendshape(FaceBlendShape.EyeLookInLeft, self._remap_blendshape(FaceBlendShape.EyeLookInLeft, eye_out_right))
+              
+            eye_down_right = right_pupil_pos[1]
+            self._face_data.set_blendshape(FaceBlendShape.EyeLookInRight, self._remap_blendshape(FaceBlendShape.EyeLookInRight, eye_down_right))
+            
+            eye_up_right = self._lerp(right_pupil_pos[1],1.21,1.5)
+            self._face_data.set_blendshape(FaceBlendShape.EyeLookOutLeft, self._remap_blendshape(FaceBlendShape.EyeLookOutLeft, eye_up_right))
+            
+            eye_up_left = self._lerp(right_pupil_pos[1],1.21,1.5)
+            self._face_data.set_blendshape(FaceBlendShape.EyeLookUpLeft, self._remap_blendshape(FaceBlendShape.EyeLookUpLeft, eye_up_left))
+            
+            
         #EYE SQUINT
         squint_left = self.dist(
             self._get_landmark(self.blend_shape_config.CanonicalPoints.squint_left[0]),
@@ -572,10 +501,13 @@ class BlendshapeCalculator():
         #Cheek
         self.detect_cheek()
 
-    def detect_blinks(self,get_eye_open_ration):
+    def detect_blinks(self):
         # Eye Blink ---------------
-        eye_open_ratio_left = get_eye_open_ration(self.blend_shape_config.CanonicalPoints.eye_left)
-        eye_open_ratio_right = get_eye_open_ration(self.blend_shape_config.CanonicalPoints.eye_right)
+                
+        eye_open_ration = self.call_stabilize_blink(0.40, 0.70)
+        
+        eye_open_ratio_left = eye_open_ration['l']
+        eye_open_ratio_right = eye_open_ration['r']
 
         blink_left = 1 - \
                      self._remap_blendshape(
@@ -583,6 +515,7 @@ class BlendshapeCalculator():
         blink_right = 1 - \
                       self._remap_blendshape(
                           FaceBlendShape.EyeBlinkRight, eye_open_ratio_right)
+                      
 
         self._face_data.set_blendshape(FaceBlendShape.EyeBlinkLeft, blink_left, True)
         self._face_data.set_blendshape(FaceBlendShape.EyeBlinkRight, blink_right, True)
@@ -665,3 +598,111 @@ class BlendshapeCalculator():
         self._face_data.set_blendshape(
             FaceBlendShape.NoseSneerRight, self._face_data.get_blendshape(FaceBlendShape.CheekSquintRight))
     
+    def _pupil_position(self, side=None):
+        if side is None:
+            side = "RIGHT"
+        if side == "RIGHT":
+            canonical_points_eye = self.blend_shape_config.CanonicalPoints.eye_right
+            canonical_points_iris = self.blend_shape_config.CanonicalPoints.iris_right
+        if side == "LEFT":
+            canonical_points_eye = self.blend_shape_config.CanonicalPoints.eye_left
+            canonical_points_iris = self.blend_shape_config.CanonicalPoints.iris_left
+        
+        # Get landmarks for eye's outer corner, inner corner, and pupil.
+        eye_outer_corner = self._get_landmark(canonical_points_eye[0])
+        eye_inner_corner = self._get_landmark(canonical_points_eye[1])
+        pupil = self._get_landmark(canonical_points_iris["middle"])
+
+        # Calculate eye width and midpoint
+        eye_width = self.dist(eye_outer_corner, eye_inner_corner)
+        mid_point = [ 0.5 * (eye_outer_corner[0] + eye_inner_corner[0]), 0.5 * (eye_outer_corner[1] + eye_inner_corner[1]) ]
+
+        # Compute distances from midpoint to the pupil
+        dx = mid_point[0] - pupil[0]
+        dy = mid_point[1] - 0.075 * eye_width - pupil[1]
+    
+        # Normalize distances with respect to eye width
+        ratio_x = 4 * dx / (eye_width / 2)
+        ratio_y = 4 * dy / (eye_width / 4)
+
+        # Assuming you want to store the result in your _face_data.
+        # self._face_data.set_pupil_position({ 'x': ratio_x, 'y': ratio_y })  # You might want to adjust this line depending on how your program is structured.
+        
+        self.dx_max = max(self.dx_max, (ratio_x))
+        self.dy_max = max(self.dy_max, (ratio_y))
+        self.dx_min = min(self.dx_min, (ratio_x))
+        self.dy_min = min(self.dy_min, (ratio_y))
+
+        with open('pupil_position.json', 'a') as f:
+            json.dump({'dx':dx, 'dx_max': self.dx_max, "dx_min": self.dx_min, 'dy':dy, 'dy_max': self.dy_max,  'dy_min': self.dy_min }, f)
+            f.write('\n')
+
+        return ratio_x, ratio_y
+    
+    # Using EAR(Eye Aspect Ratio) for detecting blinks
+    def get_eye_open_ration(self,points):
+        eye_distance = self._eye_lid_distance(points)
+        max_ratio = 0.285
+        ratio = np.clip(eye_distance / max_ratio, 0, 2)
+        return ratio
+    def calculation_blink(self):
+        #Blinks
+        self.detect_blinks()
+        
+    def _lerp(self, v0, v1, t):
+        return (1 - t) * v0 + t * v1
+    
+    def call_stabilize_blink(self, low:0.40, high:0.70):
+        eye_l = self.get_eye_open_ration(self.blend_shape_config.CanonicalPoints.eye_left)
+        eye_l_normalized = self._remap(eye_l,low,high)
+        eye_r = self.get_eye_open_ration(self.blend_shape_config.CanonicalPoints.eye_right)
+        eye_r_normalized = self._remap(eye_r,low,high)
+        
+        eye = {'l': (eye_l_normalized or 0), 'r': (eye_r_normalized or 0)}
+        
+        head =self.calculate_head_pose()
+        return self.stabilize_blink(eye, head['y'], 0.5, True)
+
+    def stabilize_blink(self, eye:dict, headY:float, maxRot:0.5, enableWink:True):
+        # clip the eye values to the range [0, 1]
+        eye['r'] = np.clip(eye['r'], 0, 1)
+        eye['l'] = np.clip(eye['l'], 0, 1)
+        # calculate the difference between the left and right eye values
+        blinkDiff = abs(eye['l'] - eye['r'])
+        # set the threshold for detecting a wink based on the enableWink flag
+        blinkThresh = 0.8 if enableWink else 1.2
+        # check if the eyes are closing or open
+        isClosing = eye['l'] < 0.3 and eye['r'] < 0.3
+        isOpen = eye['l'] > 0.6 and eye['r'] > 0.6
+        self.eye_close = not isOpen
+        
+        ###After a certain rotation, the right eye should be equalized with the left eye or the left eye with the right eye. 
+        ###Because it cannot detect the other eye because it comes out of the camera angle.
+        
+        # # if the head is tilted to the right, return the right eye value for both eyes
+        # if headY > maxRot:
+        #     return {'l': eye['r'], 'r': eye['r']}
+        # # if the head is tilted to the left, return the left eye value for both eyes
+        # if headY < -maxRot:
+        #     return {'l': eye['l'], 'r': eye['l']}
+
+        # otherwise, return a weighted average of the left and right eye values
+        # depending on the blinkDiff and the isClosing and isOpen flags
+        return {
+            'l': self._lerp(eye['r'], eye['l'], 0.05) if blinkDiff < blinkThresh or isClosing or isOpen else eye['l'],
+            'r': self._lerp(eye['r'], eye['l'], 0.95) if blinkDiff < blinkThresh or isClosing or isOpen else eye['r'],
+        }
+
+    def calculate_head_pose(self):
+        
+        head_coords = {
+            "21": self._get_landmark(21),
+            "251": self._get_landmark(251),
+            "397": self._get_landmark(397),
+            "172": self._get_landmark(172),
+        }
+        
+        head_pose = self._calculate_head_pose.calcHead(head_coords)
+        
+        return head_pose
+        

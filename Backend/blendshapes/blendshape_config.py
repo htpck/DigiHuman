@@ -42,14 +42,14 @@ class BlendShapeConfig:
             cheek_squint_left = [359, 342]
             cheek_squint_right = [130, 113]
             iris_right = {
-                "middle ":468,
+                "middle":468,
                 "right":469,
                 "upper":470,
                 "left":471,
                 "lower":472
             }
             iris_left = {
-                "middle ":473,
+                "middle":473,
                 "left":474,
                 "upper":475,
                 "right":476,
@@ -59,17 +59,17 @@ class BlendShapeConfig:
         # blend shape type, min and max value
         config = {
             FaceBlendShape.EyeBlinkLeft : (0.40, 0.70),
-            FaceBlendShape.EyeLookOutLeft : (0.59, 1.12), #EyeLookUpRight(0.32, 1.12)
-            FaceBlendShape.EyeLookOutRight : (0.90, 2.46), #EyeLookInLeft
-            FaceBlendShape.EyeLookUpRight : (0.86, 2.17), #EyeLookInRight
-            FaceBlendShape.EyeLookUpLeft : (0.59, 1.17), #EyeLookUpLeft (0.31, 1.10)W
+            FaceBlendShape.EyeLookOutLeft : (2.675, 3.585), #EyeLookUpRight(0.32, 1.12)
+            FaceBlendShape.EyeLookOutRight : (0, 2.00), #EyeLookInLeft
+            FaceBlendShape.EyeLookUpRight : (2.2, 3.7), #EyeLookInRight
+            FaceBlendShape.EyeLookUpLeft : (2.675, 3.585), #EyeLookUpLeft (0.31, 1.10)W
             FaceBlendShape.EyeSquintLeft : (0.37, 0.6),
             FaceBlendShape.EyeWideLeft : (0.9, 1.2),
             FaceBlendShape.EyeBlinkRight : (0.40, 0.70),
-            FaceBlendShape.EyeLookDownLeft : (0.67, 2.40), #EyeLookOutLeft
-            FaceBlendShape.EyeLookDownRight : (-0.46, -0.32), #EyeLookDownLeft (0.26, 1.17)
-            FaceBlendShape.EyeLookInLeft : (0.88, 2.31), #EyeLookOutRight
-            FaceBlendShape.EyeLookInRight : (-0.46, -0.31), #EyeLookDownRight (0.25, 1.01)
+            FaceBlendShape.EyeLookDownLeft : (2.6, 4.20), #EyeLookOutLeft
+            FaceBlendShape.EyeLookDownRight : (-1.6, -0.95), #EyeLookDownLeft (0.26, 1.17)
+            FaceBlendShape.EyeLookInLeft : (0.40, 2.10), #EyeLookOutRight
+            FaceBlendShape.EyeLookInRight : (-1.70, -1.00), #EyeLookDownRight (0.25, 1.01)
             FaceBlendShape.EyeSquintRight : (0.37, 0.6),
             FaceBlendShape.EyeWideRight : (0.9, 1.2),
             # FaceBlendShape.JawForward : (-0.4, 0.0),
