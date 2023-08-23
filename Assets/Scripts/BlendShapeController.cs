@@ -238,8 +238,7 @@ public class BlendShapeController : MonoBehaviour
     weight = 0
     };
     public BlendShape MouthOpenLowerTeeth = new BlendShape()
-    {
-        
+    {    
         num = 1, // Set the blend shape index of the mouth opening for the lower teeth
         weight = 0 // Set the initial weight as desired
     };
@@ -304,6 +303,130 @@ public class BlendShapeController : MonoBehaviour
         num = -1, // Set the blend shape index for eye_eyeLookOutRight (find it in Unity editor or through code)
         weight = 0 // Set the initial weight as desired
     };
+    
+    public BlendShape FaceEyeLookDownLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookDownLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape FaceEyeLookDownRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookDownLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+    
+    public BlendShape FaceEyeLookUpLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape FaceEyeLookUpRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+
+    public BlendShape FaceEyeLookInLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookInLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape FaceEyeLookInRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookInRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape FaceEyeLookOutLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape FaceEyeLookOutRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+
+    public BlendShape EyelashesEyeLookDownLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookDownLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeLookDownRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookDownLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeLookUpLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeLookUpRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+
+    public BlendShape EyelashesEyeLookInLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookInLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeLookInRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookInRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeLookOutLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeLookOutRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeSquintLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeSquintRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeWideLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeWideRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
 
 
     public void UpdateBlendShape()
@@ -405,6 +528,24 @@ public class BlendShapeController : MonoBehaviour
         UpdateBlendShapeWeight(EyeLookOutRight);
         UpdateBlendShapeWeight(EyeLookUpRight);
         UpdateBlendShapeWeight(EyeLookUpLeft);
+        UpdateBlendShapeWeight(FaceEyeLookDownLeft);
+        UpdateBlendShapeWeight(FaceEyeLookDownRight);
+        UpdateBlendShapeWeight(FaceEyeLookUpLeft);
+        UpdateBlendShapeWeight(FaceEyeLookUpRight);
+        UpdateBlendShapeWeight(FaceEyeLookInLeft);
+        UpdateBlendShapeWeight(FaceEyeLookInRight);
+        UpdateBlendShapeWeight(FaceEyeLookOutLeft);
+        UpdateBlendShapeWeight(FaceEyeLookOutRight);
+        UpdateBlendShapeWeight(EyelashesEyeLookDownLeft);
+        UpdateBlendShapeWeight(EyelashesEyeLookDownRight);
+        UpdateBlendShapeWeight(EyelashesEyeLookUpLeft);
+        UpdateBlendShapeWeight(EyelashesEyeLookUpRight);
+        UpdateBlendShapeWeight(EyelashesEyeLookInLeft);
+        UpdateBlendShapeWeight(EyelashesEyeLookInRight);
+        UpdateBlendShapeWeight(EyelashesEyeLookOutLeft);
+        UpdateBlendShapeWeight(EyelashesEyeLookOutRight);
+        UpdateBlendShapeWeight(EyelashesEyeSquintLeft);
+        UpdateBlendShapeWeight(EyelashesEyeSquintRight);
 
         UpdateBlendShapeWeight(TongueOut);
 
@@ -431,6 +572,9 @@ public class BlendShapeController : MonoBehaviour
 
             UpdateBlendShapeWeight(EyeWideLeft);
             UpdateBlendShapeWeight(EyeWideRight);
+            UpdateBlendShapeWeight(EyelashesEyeWideLeft);
+            UpdateBlendShapeWeight(EyelashesEyeWideRight);
+
         }
     }
 
@@ -491,6 +635,36 @@ public class BlendShapeController : MonoBehaviour
             if(skinnedMeshIndex == 2 && (blendNum == 14 || blendNum == 13 || blendNum == 15 || blendNum == 12)) {
                 clamValue = Mathf.Clamp(blendWeight*2, 0, 200);
             }
+            if (skinnedMeshIndex == 2 && (blendNum == 16 || blendNum == 17))
+            {
+                clamValue = clamValue > 70 ? clamValue * 1.2f : clamValue;
+            }
+            if (skinnedMeshIndex == 4 && (blendNum == 15 || blendNum == 16))
+            {
+                clamValue = clamValue > 70 ? clamValue * 1.2f : clamValue;
+            }
+            if (skinnedMeshIndex == 0 && (blendNum == 6 || blendNum == 7))
+            {
+                clamValue = Mathf.Clamp(blendWeight * 1.2f, 0, 120);
+            }
+            if (skinnedMeshIndex == 4 && (blendNum == 9 || blendNum == 10))
+            {
+                clamValue = Mathf.Clamp(blendWeight * 1.2f, 0, 120);
+            }
+            if(skinnedMeshIndex == 0 && (blendNum == 16 || blendNum == 61))
+            {
+                clamValue = Mathf.Clamp(blendWeight * 0.5f, 0, 50);
+            }
+            if (skinnedMeshIndex == 4 && (blendNum == 19|| blendNum == 61))
+            {
+                clamValue = Mathf.Clamp(blendWeight * 0.5f, 0, 50);
+            }
+            //if (skinnedMeshIndex == 0 && (blendNum == 4 || blendNum == 5))
+            //{
+            //    if (clamValue >= 95) clamValue = 100;
+            //    if (clamValue >= 50 && clamValue < 95) clamValue = 35;
+            //    if (clamValue < 35) clamValue = 0;
+            //}
             skinnedMeshRenderers[skinnedMeshIndex].SetBlendShapeWeight(blendNum, clamValue);
         }
         else

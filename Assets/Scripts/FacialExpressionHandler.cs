@@ -7,56 +7,77 @@ using UnityEngine;
 
 public enum BlendShapes : int
 {
-   EyeBlinkLeft,
-   EyeBlinkRight,
-   EyeSquintLeft,
-   EyeSquintRight,
-   EyeWideLeft,
-   EyeWideRight,
-   MouthSmileRight,
-   MouthSmileLeft,
-   MouthDimpleLeft,
-   MouthDimpleRight,
-   MouthFrownRight,
-   MouthFrownLeft,
-   LipLowerDownLeft,
-   LipLowerDownRight,
-   LipUpperUpLeft,
-   LipUpperUpRight,
-   MouthLeft,
-   MouthRight,
-   MouthStretchLeft,
-   MouthStretchRight,
-   MouthLowerDownRight,
-   MouthLowerDownLeft,
-   MouthPressLeft,
-   MouthPressRight,
-   MouthOpen,
-   MouthPucker,
-   MouthShrugUpper,
-   MouthShrugLower,
-   JawOpen,
-   JawLeft,
-   JawRight,
-   BrowDownLeft,
-   BrowOuterUpLeft,
-   BrowDownRight,
-   BrowOuterUpRight,
-   CheekSquintRight,
-   CheekSquintLeft,
-   MouthRollLower,
-   MouthRollUpper,
-   NoseSneerLeft,
-   NoseSneerRight,
-   EyeLookDownLeft, // New blend shape
-   EyeLookDownRight, // New blend shape
-   EyeLookInLeft, // New blend shape
-   EyeLookInRight, // New blend shape
-   EyeLookOutLeft, // New blend shape
-   EyeLookOutRight,
-   EyeLookUpRight,// New blend shape
-   EyeLookUpLeft,// New blend shape
-   TongueOut, //tongue
+    EyeBlinkLeft,
+    EyeBlinkRight,
+    EyeSquintLeft,
+    EyeSquintRight,
+    EyeWideLeft,
+    EyeWideRight,
+    MouthSmileRight,
+    MouthSmileLeft,
+    MouthDimpleLeft,
+    MouthDimpleRight,
+    MouthFrownRight,
+    MouthFrownLeft,
+    LipLowerDownLeft,
+    LipLowerDownRight,
+    LipUpperUpLeft,
+    LipUpperUpRight,
+    MouthLeft,
+    MouthRight,
+    MouthStretchLeft,
+    MouthStretchRight,
+    MouthLowerDownRight,
+    MouthLowerDownLeft,
+    MouthPressLeft,
+    MouthPressRight,
+    MouthOpen,
+    MouthPucker,
+    MouthShrugUpper,
+    MouthShrugLower,
+    JawOpen,
+    JawLeft,
+    JawRight,
+    BrowDownLeft,
+    BrowOuterUpLeft,
+    BrowDownRight,
+    BrowOuterUpRight,
+    CheekSquintRight,
+    CheekSquintLeft,
+    MouthRollLower,
+    MouthRollUpper,
+    NoseSneerLeft,
+    NoseSneerRight,
+    EyeLookDownLeft, // New blend shape
+    EyeLookDownRight, // New blend shape
+    EyeLookInLeft, // New blend shape
+    EyeLookInRight, // New blend shape
+    EyeLookOutLeft, // New blend shape
+    EyeLookOutRight,
+    EyeLookUpRight,// New blend shape
+    EyeLookUpLeft,// New blend shape
+    TongueOut, //tongue
+    FaceEyeLookDownLeft,
+    FaceEyeLookDownRight,
+    FaceEyeLookUpLeft,
+    FaceEyeLookUpRight,
+    FaceEyeLookInLeft,
+    FaceEyeLookInRight,
+    FaceEyeLookOutLeft,
+    FaceEyeLookOutRight,
+    EyelashesEyeLookDownLeft,
+    EyelashesEyeLookDownRight,
+    EyelashesEyeLookUpLeft,
+    EyelashesEyeLookUpRight,
+    EyelashesEyeLookInLeft,
+    EyelashesEyeLookInRight,
+    EyelashesEyeLookOutLeft,
+    EyelashesEyeLookOutRight,
+    EyelashesEyeSquintLeft,
+    EyelashesEyeSquintRight,
+    EyelashesEyeWideLeft,
+    EyelashesEyeWideRight
+
 
 }//23 nodes for now
 
@@ -95,7 +116,7 @@ public class FacialExpressionHandler : MonoBehaviour
     {
         BlendShapeController = character.GetComponentInChildren<BlendShapeController>();
         
-        faceBlendNodes = new FaceBlendData[50];//number of current processable nodes
+        faceBlendNodes = new FaceBlendData[68];//number of current processable nodes
         for (int i = 0; i < faceBlendNodes.Length; i++)
         {
             faceBlendNodes[i] = new FaceBlendData();
@@ -190,6 +211,29 @@ public class FacialExpressionHandler : MonoBehaviour
         BlendShapeController.EyeLookUpLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookUpLeft].weight;
 
         BlendShapeController.TongueOut.weight = faceBlendNodes[(int)BlendShapes.TongueOut].weight;
+
+        BlendShapeController.FaceEyeLookDownLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookDownLeft].weight;
+        BlendShapeController.FaceEyeLookDownRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookDownRight].weight;
+        BlendShapeController.FaceEyeLookUpLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookUpLeft].weight;
+        BlendShapeController.FaceEyeLookUpRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookUpRight].weight;
+        BlendShapeController.FaceEyeLookInLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookInLeft].weight;
+        BlendShapeController.FaceEyeLookInRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookInRight].weight;
+        BlendShapeController.FaceEyeLookOutLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookOutLeft].weight;
+        BlendShapeController.FaceEyeLookOutRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookOutRight].weight;
+
+        BlendShapeController.EyelashesEyeLookDownLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookDownLeft].weight;
+        BlendShapeController.EyelashesEyeLookDownRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookDownRight].weight;
+        BlendShapeController.EyelashesEyeLookUpLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookUpLeft].weight;
+        BlendShapeController.EyelashesEyeLookUpRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookUpRight].weight;
+        BlendShapeController.EyelashesEyeLookInLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookInLeft].weight;
+        BlendShapeController.EyelashesEyeLookInRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookInRight].weight;
+        BlendShapeController.EyelashesEyeLookOutLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookOutLeft].weight;
+        BlendShapeController.EyelashesEyeLookOutRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookOutRight].weight;
+        BlendShapeController.EyelashesEyeSquintLeft.weight = faceBlendNodes[(int)BlendShapes.EyeSquintLeft].weight;
+        BlendShapeController.EyelashesEyeSquintRight.weight = faceBlendNodes[(int)BlendShapes.EyeSquintRight].weight;
+        BlendShapeController.EyelashesEyeWideLeft.weight = faceBlendNodes[(int)BlendShapes.EyeWideLeft].weight;
+        BlendShapeController.EyelashesEyeWideRight.weight = faceBlendNodes[(int)BlendShapes.EyeWideRight].weight;
+
 
         BlendShapeController.UpdateBlendShape();
     }
