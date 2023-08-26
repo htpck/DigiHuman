@@ -426,6 +426,17 @@ public class BlendShapeController : MonoBehaviour
         num = -1, // Set the blend shape index for face_eyeLookOutRight (find it in Unity editor or through code)
         weight = 0 // Set the initial weight as desired
     };
+    public BlendShape EyelashesEyeBlinkLeft = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutLeft (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
+
+    public BlendShape EyelashesEyeBlinkRight = new BlendShape()
+    {
+        num = -1, // Set the blend shape index for face_eyeLookOutRight (find it in Unity editor or through code)
+        weight = 0 // Set the initial weight as desired
+    };
 
 
 
@@ -546,6 +557,8 @@ public class BlendShapeController : MonoBehaviour
         UpdateBlendShapeWeight(EyelashesEyeLookOutRight);
         UpdateBlendShapeWeight(EyelashesEyeSquintLeft);
         UpdateBlendShapeWeight(EyelashesEyeSquintRight);
+        UpdateBlendShapeWeight(EyelashesEyeBlinkLeft);
+        UpdateBlendShapeWeight(EyelashesEyeBlinkRight);
 
         UpdateBlendShapeWeight(TongueOut);
 

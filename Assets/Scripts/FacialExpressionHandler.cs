@@ -233,6 +233,8 @@ public class FacialExpressionHandler : MonoBehaviour
         BlendShapeController.EyelashesEyeSquintRight.weight = faceBlendNodes[(int)BlendShapes.EyeSquintRight].weight;
         BlendShapeController.EyelashesEyeWideLeft.weight = faceBlendNodes[(int)BlendShapes.EyeWideLeft].weight;
         BlendShapeController.EyelashesEyeWideRight.weight = faceBlendNodes[(int)BlendShapes.EyeWideRight].weight;
+        BlendShapeController.EyelashesEyeBlinkLeft.weight = faceBlendNodes[(int)BlendShapes.EyeBlinkLeft].weight;
+        BlendShapeController.EyelashesEyeBlinkRight.weight = faceBlendNodes[(int)BlendShapes.EyeBlinkRight].weight;
 
 
         BlendShapeController.UpdateBlendShape();
