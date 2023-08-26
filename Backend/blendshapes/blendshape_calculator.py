@@ -1,11 +1,11 @@
-import math
 import random
 import numpy as np
 from .facedata import FaceData, FaceBlendShape
 from google.protobuf.internal.containers import RepeatedCompositeFieldContainer
 from .blendshape_config import BlendShapeConfig
-import json
 from .calculate_head_pose import CalculateHeadPose
+from.calculate_eye_pose import CalculateEyePose
+from . import utils
 
 
 #Big Thanks to https://github.com/JimWest/MeFaMo for his great repository
@@ -15,13 +15,12 @@ class BlendshapeCalculator():
 
     This class calculates the blendshapes from the given landmarks.
     """
-    dx_max,dx_min,dy_max,dy_min = -10,10,-10,10
-    eye_close = False
+    
     def __init__(self) -> None:
         self.blend_shape_config = BlendShapeConfig()
-
+        
     def calculate_blendshapes(self, face_data: FaceData, metric_landmarks: np.ndarray,
-                              normalized_landmarks: RepeatedCompositeFieldContainer, calculate_head_pose: CalculateHeadPose) -> None:
+                              normalized_landmarks: RepeatedCompositeFieldContainer, calculate_head_pose: CalculateHeadPose, calculate_eye_pose: CalculateEyePose) -> None:
         """ Calculate the blendshapes from the given landmarks.
 
         This function calculates the blendshapes from the given landmarks and stores them in the given live_link_face.
@@ -44,10 +43,12 @@ class BlendshapeCalculator():
         self._metric_landmarks = metric_landmarks
         self._normalized_landmarks = normalized_landmarks
         self._calculate_head_pose = calculate_head_pose
+        self._calculate_eye_pose = calculate_eye_pose
 
-        self._calculate_mouth_landmarks()
+        self._calculate_eye_pose.after_init(metric_landmarks, normalized_landmarks,calculate_head_pose,face_data)
+        #self._calculate_mouth_landmarks()
         self._calculate_eye_landmarks()
-
+     
     def _get_landmark(self, index: int, use_normalized: bool = False) -> np.array:
         """ Get the stored landmark from the given index.
 
@@ -83,21 +84,8 @@ class BlendshapeCalculator():
             z = landmarks[index].z  # * self.image_height
             return np.array([x, y, z])
 
-            #  clamp value to 0 - 1 using the min and max values of the config
+    #  clamp value to 0 - 1 using the min and max values of the config
 
-    def _remap(self, value, min, max):
-        return (np.clip(value, min, max) - min) / (max - min)
-
-    def _remap_blendshape(self, index: FaceBlendShape, value: float):
-        min, max = self.blend_shape_config.config.get(index)
-        return self._remap(value, min, max)
-
-    def dist(self,p, q):
-        return math.sqrt(sum((px - qx) ** 2.0 for px, qx in zip(p, q)))
-    
-    def dist2(self,p, q,o):
-        return math.sqrt(sum((px - ox) ** 2.0 + (px - qx) ** 2.0 for px, qx,ox in zip(p, q,o)))
-    
     def _calculate_mouth_landmarks(self):
         upper_lip = self._get_landmark(self.blend_shape_config.CanonicalPoints.upper_lip)
         upper_outer_lip = self._get_landmark(self.blend_shape_config.CanonicalPoints.upper_outer_lip)
@@ -110,24 +98,24 @@ class BlendshapeCalculator():
         nose_tip = self._get_landmark(self.blend_shape_config.CanonicalPoints.nose_tip)
         upper_head = self._get_landmark(self.blend_shape_config.CanonicalPoints.upper_head)
 
-        mouth_width = self.dist(mouth_corner_left, mouth_corner_right)
+        mouth_width = utils.dist(mouth_corner_left, mouth_corner_right)
         mouth_center = (upper_lip + lower_lip) / 2
-        mouth_open_dist = self.dist(upper_lip, lower_lip)
-        mouth_center_nose_dist = self.dist(mouth_center, nose_tip)
+        mouth_open_dist = utils.dist(upper_lip, lower_lip)
+        mouth_center_nose_dist = utils.dist(mouth_center, nose_tip)
 
-        jaw_nose_dist = self.dist(lowest_chin, nose_tip)
-        head_height = self.dist(upper_head, lowest_chin)
+        jaw_nose_dist = utils.dist(lowest_chin, nose_tip)
+        head_height = utils.dist(upper_head, lowest_chin)
         jaw_open_ratio = jaw_nose_dist / head_height
 
         #Jaw Open
-        jaw_open = self._remap_blendshape(FaceBlendShape.JawOpen, jaw_open_ratio)
+        jaw_open = utils._remap_blendshape(FaceBlendShape.JawOpen, jaw_open_ratio)
         self._face_data.set_blendshape(FaceBlendShape.JawOpen, jaw_open)
 
         #mouth open/close
-        mouth_close = self._remap_blendshape(FaceBlendShape.MouthClose, mouth_center_nose_dist - mouth_open_dist)
+        mouth_close = utils._remap_blendshape(FaceBlendShape.MouthClose, mouth_center_nose_dist - mouth_open_dist)
         self._face_data.set_blendshape(FaceBlendShape.MouthClose, mouth_close)
 
-        mouth_open = self._remap_blendshape(FaceBlendShape.MouthOpen, mouth_open_dist/mouth_width) #mouth aspect ratio
+        mouth_open = utils._remap_blendshape(FaceBlendShape.MouthOpen, mouth_open_dist/mouth_width) #mouth aspect ratio
         self._face_data.set_blendshape(FaceBlendShape.MouthOpen, mouth_open)
 
         #Simle
@@ -166,35 +154,35 @@ class BlendshapeCalculator():
         #detect corners lip direction
         # self.detect_lip_direction(mouth_open,mouth_left,mouth_right)
         #lower lip
-        lower_down_left = self.dist(self._get_landmark(
+        lower_down_left = utils.dist(self._get_landmark(
             321), self._get_landmark(395))
-        lower_down_left2 = self.dist(self._get_landmark(
+        lower_down_left2 = utils.dist(self._get_landmark(
             321), self._get_landmark(364))
 
-        lower_down_right = self.dist(self._get_landmark(
+        lower_down_right = utils.dist(self._get_landmark(
             91), self._get_landmark(170))
-        lower_down_right2 = self.dist(self._get_landmark(
+        lower_down_right2 = utils.dist(self._get_landmark(
             91), self._get_landmark(135))
 
 
-        lower_down_left_lip = 1 - self._remap_blendshape(FaceBlendShape.LipLowerDownLeft, (lower_down_left + lower_down_left2)/2.0)
-        lower_down_right_final = 1 - self._remap_blendshape(FaceBlendShape.LipLowerDownRight,(lower_down_right + lower_down_right2)/2.0)
+        lower_down_left_lip = 1 - utils._remap_blendshape(FaceBlendShape.LipLowerDownLeft, (lower_down_left + lower_down_left2)/2.0)
+        lower_down_right_final = 1 - utils._remap_blendshape(FaceBlendShape.LipLowerDownRight,(lower_down_right + lower_down_right2)/2.0)
         self._face_data.set_blendshape(FaceBlendShape.LipLowerDownLeft, lower_down_left_lip)
         self._face_data.set_blendshape(FaceBlendShape.LipLowerDownRight, lower_down_right_final)
 
         # upper lip
-        upper_up_left = self.dist(self._get_landmark(
+        upper_up_left = utils.dist(self._get_landmark(
             270), self._get_landmark(425))
-        upper_up_left2 = self.dist(self._get_landmark(
+        upper_up_left2 = utils.dist(self._get_landmark(
             270), self._get_landmark(266))
 
-        upper_up_right = self.dist(self._get_landmark(
+        upper_up_right = utils.dist(self._get_landmark(
             40), self._get_landmark(205))
-        upper_up_right2 = self.dist(self._get_landmark(
+        upper_up_right2 = utils.dist(self._get_landmark(
             40), self._get_landmark(36))
 
-        upper_up_left_lip = 1 - self._remap_blendshape(FaceBlendShape.LipUpperUpLeft, (upper_up_left + upper_up_left2)/2.0)
-        upper_up_right_final = 1 - self._remap_blendshape(FaceBlendShape.LipUpperUpRight,(upper_up_right + upper_up_right2)/2.0)
+        upper_up_left_lip = 1 - utils._remap_blendshape(FaceBlendShape.LipUpperUpLeft, (upper_up_left + upper_up_left2)/2.0)
+        upper_up_right_final = 1 - utils._remap_blendshape(FaceBlendShape.LipUpperUpRight,(upper_up_right + upper_up_right2)/2.0)
         self._face_data.set_blendshape(FaceBlendShape.LipUpperUpLeft, upper_up_left_lip)
         self._face_data.set_blendshape(FaceBlendShape.LipUpperUpRight, upper_up_right_final)
 
@@ -204,10 +192,9 @@ class BlendshapeCalculator():
 
         # really hard to do this, mediapipe is not really moving here
         # right_under_eye = self._get_landmark(350)
-        # nose_sneer_right_dist = self.dist(nose_tip, right_under_eye)
+        # nose_sneer_right_dist = utils.dist(nose_tip, right_under_eye)
         # print(nose_sneer_right_dist)
         # same with cheek puff
-
 
     def detect_smile(self,upper_lip,mouth_corner_left,mouth_corner_right):
         # Smile
@@ -216,9 +203,9 @@ class BlendshapeCalculator():
         smile_right = upper_lip[1] - mouth_corner_right[1]
 
         mouth_smile_left = 1 - \
-                           self._remap_blendshape(FaceBlendShape.MouthSmileLeft, smile_left)
+                           utils._remap_blendshape(FaceBlendShape.MouthSmileLeft, smile_left)
         mouth_smile_right = 1 - \
-                            self._remap_blendshape(FaceBlendShape.MouthSmileRight, smile_right)
+                            utils._remap_blendshape(FaceBlendShape.MouthSmileRight, smile_right)
 
         # print(mouth_smile_right)
         self._face_data.set_blendshape(
@@ -242,11 +229,11 @@ class BlendshapeCalculator():
         mouth_frown_right = \
         (mouth_corner_right - self._get_landmark(self.blend_shape_config.CanonicalPoints.mouth_frown_right))[1]
 
-        mouth_frown_left_final = 1 - self._remap_blendshape(FaceBlendShape.MouthFrownLeft, mouth_frown_left)
+        mouth_frown_left_final = 1 - utils._remap_blendshape(FaceBlendShape.MouthFrownLeft, mouth_frown_left)
         self._face_data.set_blendshape(
             FaceBlendShape.MouthFrownLeft, mouth_frown_left_final)
 
-        mouth_frown_right_final = 1 - self._remap_blendshape(FaceBlendShape.MouthFrownRight, mouth_frown_right)
+        mouth_frown_right_final = 1 - utils._remap_blendshape(FaceBlendShape.MouthFrownRight, mouth_frown_right)
         self._face_data.set_blendshape(
             FaceBlendShape.MouthFrownRight,
             mouth_frown_right_final)
@@ -267,10 +254,10 @@ class BlendshapeCalculator():
 
         stretch = mouth_center[0] - upper_nose[0]
 
-        mouth_left = self._remap_blendshape(
+        mouth_left = utils._remap_blendshape(
             FaceBlendShape.MouthLeft, stretch)
         mouth_right = 1 - \
-                      self._remap_blendshape(FaceBlendShape.MouthRight,
+                      utils._remap_blendshape(FaceBlendShape.MouthRight,
                                              stretch)
         self._face_data.set_blendshape(
             FaceBlendShape.MouthLeft, mouth_left)
@@ -301,25 +288,23 @@ class BlendshapeCalculator():
                             (0.45 * mouth_smile_right) + (0.36 * mouth_right)
 
 
-        mouth_left_stretch_final = self._remap(mouth_left_stretch, stretch_normal_left, stretch_max_left)
+        mouth_left_stretch_final = utils._remap(mouth_left_stretch, stretch_normal_left, stretch_max_left)
         self._face_data.set_blendshape(FaceBlendShape.MouthStretchLeft, mouth_left_stretch_final)
 
-        mouth_right_stretch_final = self._remap(mouth_right_stretch, stretch_normal_right, stretch_max_right)
+        mouth_right_stretch_final = utils._remap(mouth_right_stretch, stretch_normal_right, stretch_max_right)
         self._face_data.set_blendshape(FaceBlendShape.MouthStretchRight, mouth_right_stretch_final)
 
         return mouth_left, mouth_right
-
     # when your mouth roll and shrink this will be near to 1
     def detect_Mouth_Roll(self,lower_lip,upper_lip,upper_outer_lip,lowest_lip):
 
 
-        outer_lip_dist = self.dist(lower_lip, lowest_lip)
-        upper_lip_dist = self.dist(upper_lip, upper_outer_lip)
+        outer_lip_dist = utils.dist(lower_lip, lowest_lip)
+        upper_lip_dist = utils.dist(upper_lip, upper_outer_lip)
         self._face_data.set_blendshape(
-            FaceBlendShape.MouthRollLower, 1 - self._remap_blendshape(FaceBlendShape.MouthRollLower, outer_lip_dist))
+            FaceBlendShape.MouthRollLower, 1 - utils._remap_blendshape(FaceBlendShape.MouthRollLower, outer_lip_dist))
         self._face_data.set_blendshape(
-            FaceBlendShape.MouthRollUpper, 1 - self._remap_blendshape(FaceBlendShape.MouthRollUpper, upper_lip_dist))
-
+            FaceBlendShape.MouthRollUpper, 1 - utils._remap_blendshape(FaceBlendShape.MouthRollUpper, upper_lip_dist))
 
     def detect_Jaw_direction(self,nose_tip,lowest_chin):
         #Jaw left right
@@ -327,38 +312,38 @@ class BlendshapeCalculator():
         jaw_right_left = nose_tip[0] - lowest_chin[0]
 
         # TODO: this is not face rotation resistant
-        jaw_left = 1 - self._remap_blendshape(FaceBlendShape.JawLeft, jaw_right_left)
+        jaw_left = 1 - utils._remap_blendshape(FaceBlendShape.JawLeft, jaw_right_left)
         self._face_data.set_blendshape(
             FaceBlendShape.JawLeft, jaw_left)
 
-        jaw_right = self._remap_blendshape(FaceBlendShape.JawRight, jaw_right_left)
+        jaw_right = utils._remap_blendshape(FaceBlendShape.JawRight, jaw_right_left)
         self._face_data.set_blendshape(FaceBlendShape.JawRight, jaw_right)
         #-------------------------------
 
     # will appear in the time of mouth press(when you hide your lips by pulling it inside your mouth!)
     def detect_mouth_press(self):
-        left_upper_press = self.dist(
+        left_upper_press = utils.dist(
             self._get_landmark(self.blend_shape_config.CanonicalPoints.left_upper_press[0]),
             self._get_landmark(self.blend_shape_config.CanonicalPoints.left_upper_press[1])
         )
-        left_lower_press = self.dist(
+        left_lower_press = utils.dist(
             self._get_landmark(self.blend_shape_config.CanonicalPoints.left_lower_press[0]),
             self._get_landmark(self.blend_shape_config.CanonicalPoints.left_lower_press[1])
         )
         mouth_press_left = (left_upper_press + left_lower_press) / 2
 
-        right_upper_press = self.dist(
+        right_upper_press = utils.dist(
             self._get_landmark(self.blend_shape_config.CanonicalPoints.right_upper_press[0]),
             self._get_landmark(self.blend_shape_config.CanonicalPoints.right_upper_press[1])
         )
-        right_lower_press = self.dist(
+        right_lower_press = utils.dist(
             self._get_landmark(self.blend_shape_config.CanonicalPoints.right_lower_press[0]),
             self._get_landmark(self.blend_shape_config.CanonicalPoints.right_lower_press[1])
         )
         mouth_press_right = (right_upper_press + right_lower_press) / 2
 
-        mouth_press_left_final = 1 - self._remap_blendshape(FaceBlendShape.MouthPressLeft, mouth_press_left)
-        mouth_press_right_final = 1 - self._remap_blendshape(FaceBlendShape.MouthPressRight, mouth_press_right)
+        mouth_press_left_final = 1 - utils._remap_blendshape(FaceBlendShape.MouthPressLeft, mouth_press_left)
+        mouth_press_right_final = 1 - utils._remap_blendshape(FaceBlendShape.MouthPressRight, mouth_press_right)
 
         # print(mouth_press_left_final)
         self._face_data.set_blendshape(
@@ -370,27 +355,27 @@ class BlendshapeCalculator():
 
     #will appear when your whole mouth goes to corner left down or right direction
     def detect_mouth_lower_direction(self,mouth_open_dist):
-        lower_down_left = self.dist(self._get_landmark(
+        lower_down_left = utils.dist(self._get_landmark(
             424), self._get_landmark(319)) + mouth_open_dist * 0.5
-        lower_down_right = self.dist(self._get_landmark(
+        lower_down_right = utils.dist(self._get_landmark(
             204), self._get_landmark(89)) + mouth_open_dist * 0.5
 
-        lower_down_left_final = 1 - self._remap_blendshape(FaceBlendShape.MouthLowerDownLeft, lower_down_left)
-        lower_down_right_final = 1 -self._remap_blendshape(FaceBlendShape.MouthLowerDownRight,lower_down_right)
-        # print(self.dist(self._get_landmark(
+        lower_down_left_final = 1 - utils._remap_blendshape(FaceBlendShape.MouthLowerDownLeft, lower_down_left)
+        lower_down_right_final = 1 -utils._remap_blendshape(FaceBlendShape.MouthLowerDownRight,lower_down_right)
+        # print(utils.dist(self._get_landmark(
         #     424), self._get_landmark(319)))
         self._face_data.set_blendshape(FaceBlendShape.MouthLowerDownLeft, lower_down_left_final)
         self._face_data.set_blendshape(FaceBlendShape.MouthLowerDownRight, lower_down_right_final)
     
     #will appear when your quarter of your mouth(left_up_lip, left _down_lip,right_up_lip,right_down_lip) turns more to its corner
     def detect_lip_direction(self,mouth_open_dist,mouth_left,mouth_right):
-        lower_down_left = self.dist(self._get_landmark(
+        lower_down_left = utils.dist(self._get_landmark(
             424), self._get_landmark(319))
-        lower_down_right = self.dist(self._get_landmark(
-            204), self._get_landmark(89))
+        lower_down_right = utils.dist(self._get_landmark(
+            204), self._get_landmark(89, self._metric_landmarks, self._normalized_landmarks))
 
-        lower_down_left_lip = 1 - self._remap_blendshape(FaceBlendShape.LipLowerDownLeft, lower_down_left)
-        lower_down_right_final = 1 -self._remap_blendshape(FaceBlendShape.LipLowerDownRight,lower_down_right)
+        lower_down_left_lip = 1 - utils._remap_blendshape(FaceBlendShape.LipLowerDownLeft, lower_down_left)
+        lower_down_right_final = 1 -utils._remap_blendshape(FaceBlendShape.LipLowerDownRight,lower_down_right)
         # print(lower_down_left + (mouth_open_dist - mouth_left))
         self._face_data.set_blendshape(FaceBlendShape.LipLowerDownLeft, lower_down_left_lip)
         self._face_data.set_blendshape(FaceBlendShape.LipLowerDownRight, lower_down_right_final)
@@ -398,21 +383,21 @@ class BlendshapeCalculator():
     def detect_mouth_shrug(self,nose_tip,uppest_lip,lowest_lip):
         #mouth shrug up will be near 1 if upper mouth is near nose!
         upper_lip_nose_dist = nose_tip[1] - uppest_lip[1]
-        mouth_shrug_upper = 1 - self._remap_blendshape(FaceBlendShape.MouthShrugUpper, upper_lip_nose_dist)
+        mouth_shrug_upper = 1 - utils._remap_blendshape(FaceBlendShape.MouthShrugUpper, upper_lip_nose_dist)
         self._face_data.set_blendshape(FaceBlendShape.MouthShrugUpper,mouth_shrug_upper)
 
-        over_upper_lip = self._get_landmark(self.blend_shape_config.CanonicalPoints.over_upper_lip)
-        mouth_shrug_lower = self.dist(lowest_lip, over_upper_lip)
+        over_upper_lip = self._get_landmark(self.blend_shape_config.CanonicalPoints.over_upper_lip, self._metric_landmarks, self._normalized_landmarks)
+        mouth_shrug_lower = utils.dist(lowest_lip, over_upper_lip)
 
         #not good
-        mouth_shrug_lower_final = 1 - self._remap_blendshape(FaceBlendShape.MouthShrugLower, mouth_shrug_lower)
+        mouth_shrug_lower_final = 1 - utils._remap_blendshape(FaceBlendShape.MouthShrugLower, mouth_shrug_lower)
         self._face_data.set_blendshape(
             FaceBlendShape.MouthShrugLower,mouth_shrug_lower_final)
 
         #------------------------------------------------------------------
 
     def detect_mouth_pucker(self,mouth_width,mouth_open_dist):
-        mouth_pucker = self._remap_blendshape(
+        mouth_pucker = utils._remap_blendshape(
             FaceBlendShape.MouthPucker, mouth_open_dist/mouth_width)
         # self._face_data.set_blendshape(
         #     FaceBlendShape.MouthPucker, 1 - mouth_pucker)
@@ -424,285 +409,12 @@ class BlendshapeCalculator():
         # mouth funnel only can be seen if mouth pucker is really small
         if self._face_data.get_blendshape(FaceBlendShape.MouthPucker) < 0.5:
             self._face_data.set_blendshape(
-                FaceBlendShape.MouthFunnel, 1 - self._remap_blendshape(FaceBlendShape.MouthFunnel, mouth_width))
+                FaceBlendShape.MouthFunnel, 1 - utils._remap_blendshape(FaceBlendShape.MouthFunnel, mouth_width))
         else:
             self._face_data.set_blendshape(FaceBlendShape.MouthFunnel, 0)
 
-    def _eye_lid_distance(self, eye_points):
-        eye_width = self.dist(self._get_landmark(
-            eye_points[0]), self._get_landmark(eye_points[1]))
-        eye_outer_lid = self.dist(self._get_landmark(
-            eye_points[2]), self._get_landmark(eye_points[5]))
-        eye_mid_lid = self.dist(self._get_landmark(
-            eye_points[3]), self._get_landmark(eye_points[6]))
-        eye_inner_lid = self.dist(self._get_landmark(
-            eye_points[4]), self._get_landmark(eye_points[7]))
-        eye_lid_avg = (eye_outer_lid + eye_mid_lid + eye_inner_lid) / 3
-        ratio = eye_lid_avg / eye_width
-        return ratio
-
     def _calculate_eye_landmarks(self):
+        self._calculate_eye_pose.calculation_blink()
+        self._calculate_eye_pose.calculate_eye_landmarks()
 
-        self.calculation_blink()
-        right_pupil_pos = self._pupil_position("RIGHT")
-        left_pupil_pos = self._pupil_position("LEFT")
-            
 
-        if not self.eye_close:
-            #IRIS DETECTION
-            
-            eye_in_left = left_pupil_pos[0]
-            self._face_data.set_blendshape(FaceBlendShape.EyeLookOutRight, self._remap_blendshape(FaceBlendShape.EyeLookOutRight, eye_in_left))
-            
-            eye_in_right = self._lerp(right_pupil_pos[0],1.21,2)
-            self._face_data.set_blendshape(FaceBlendShape.EyeLookUpRight, self._remap_blendshape(FaceBlendShape.EyeLookUpRight, eye_in_right))
-            
-            eye_out_left = self._lerp(left_pupil_pos[0],1.21,2)
-            self._face_data.set_blendshape(FaceBlendShape.EyeLookDownLeft, self._remap_blendshape(FaceBlendShape.EyeLookDownLeft, eye_out_left))
-            
-            eye_down_left = left_pupil_pos[1]
-            self._face_data.set_blendshape(FaceBlendShape.EyeLookDownRight, self._remap_blendshape(FaceBlendShape.EyeLookDownRight, eye_down_left))
-            
-            eye_out_right = right_pupil_pos[0]
-            self._face_data.set_blendshape(FaceBlendShape.EyeLookInLeft, self._remap_blendshape(FaceBlendShape.EyeLookInLeft, eye_out_right))
-              
-            eye_down_right = right_pupil_pos[1]
-            self._face_data.set_blendshape(FaceBlendShape.EyeLookInRight, self._remap_blendshape(FaceBlendShape.EyeLookInRight, eye_down_right))
-            
-            eye_up_right = self._lerp(right_pupil_pos[1],1.21,1.5)
-            self._face_data.set_blendshape(FaceBlendShape.EyeLookOutLeft, self._remap_blendshape(FaceBlendShape.EyeLookOutLeft, eye_up_right))
-            
-            eye_up_left = self._lerp(right_pupil_pos[1],1.21,1.5)
-            self._face_data.set_blendshape(FaceBlendShape.EyeLookUpLeft, self._remap_blendshape(FaceBlendShape.EyeLookUpLeft, eye_up_left))
-            
-            
-        #EYE SQUINT
-        squint_left = self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.squint_left[0]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.squint_left[1])
-        )
-        self._face_data.set_blendshape(
-            FaceBlendShape.EyeSquintLeft, self._remap_blendshape(FaceBlendShape.EyeSquintLeft, squint_left))
-
-        squint_right = self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.squint_right[0]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.squint_right[1])
-        )
-        self._face_data.set_blendshape(
-            FaceBlendShape.EyeSquintRight, self._remap_blendshape(FaceBlendShape.EyeSquintRight, squint_right))
-        
-        
-
-        # print(self._remap_blendshape(FaceBlendShape.EyeSquintRight, squint_right))
-
-        #Brow
-        self.detect_brow_actions()
-
-        #Cheek
-        self.detect_cheek()
-
-    def detect_blinks(self):
-        # Eye Blink ---------------
-                
-        eye_open_ration = self.call_stabilize_blink(0.40, 0.70)
-        
-        eye_open_ratio_left = eye_open_ration['l']
-        eye_open_ratio_right = eye_open_ration['r']
-
-        blink_left = 1 - \
-                     self._remap_blendshape(
-                         FaceBlendShape.EyeBlinkLeft, eye_open_ratio_left)
-        blink_right = 1 - \
-                      self._remap_blendshape(
-                          FaceBlendShape.EyeBlinkRight, eye_open_ratio_right)
-                      
-
-        self._face_data.set_blendshape(FaceBlendShape.EyeBlinkLeft, blink_left, True)
-        self._face_data.set_blendshape(FaceBlendShape.EyeBlinkRight, blink_right, True)
-
-        self._face_data.set_blendshape(FaceBlendShape.EyeWideLeft, self._remap_blendshape(
-            FaceBlendShape.EyeWideLeft, eye_open_ratio_left))
-        self._face_data.set_blendshape(FaceBlendShape.EyeWideRight, self._remap_blendshape(
-            FaceBlendShape.EyeWideRight, eye_open_ratio_right))
-
-        # ----------------------------------------
-
-    def detect_brow_actions(self):
-        #Brow up down
-
-        right_brow_lower = (
-                                   self._get_landmark(self.blend_shape_config.CanonicalPoints.right_brow_lower[0]) +
-                                   self._get_landmark(self.blend_shape_config.CanonicalPoints.right_brow_lower[1]) +
-                                   self._get_landmark(self.blend_shape_config.CanonicalPoints.right_brow_lower[2])
-                           ) / 3
-        right_brow_dist = self.dist(self._get_landmark(self.blend_shape_config.CanonicalPoints.right_brow),
-                                    right_brow_lower)
-
-        left_brow_lower = (
-                                  self._get_landmark(self.blend_shape_config.CanonicalPoints.left_brow_lower[0]) +
-                                  self._get_landmark(self.blend_shape_config.CanonicalPoints.left_brow_lower[1]) +
-                                  self._get_landmark(self.blend_shape_config.CanonicalPoints.left_brow_lower[2])
-                          ) / 3
-        left_brow_dist = self.dist(self._get_landmark(self.blend_shape_config.CanonicalPoints.left_brow),
-                                   left_brow_lower)
-
-        brow_down_left = 1 - self._remap_blendshape(FaceBlendShape.BrowDownLeft, left_brow_dist)
-        self._face_data.set_blendshape(FaceBlendShape.BrowDownLeft, brow_down_left)
-
-        brow_outer_up_left = self._remap_blendshape(FaceBlendShape.BrowOuterUpLeft, left_brow_dist)
-        self._face_data.set_blendshape(FaceBlendShape.BrowOuterUpLeft, brow_outer_up_left)
-
-        brow_down_right = 1 - self._remap_blendshape(FaceBlendShape.BrowDownRight, right_brow_dist)
-        self._face_data.set_blendshape(FaceBlendShape.BrowDownRight, brow_down_right)
-
-        brow_outer_up_right = self._remap_blendshape(FaceBlendShape.BrowOuterUpRight, right_brow_dist)
-        self._face_data.set_blendshape(FaceBlendShape.BrowOuterUpRight, brow_outer_up_right)
-        # print(brow_outer_up_right)
-        #-------------------------------------------------
-
-        #Extra
-        inner_brow = self._get_landmark(self.blend_shape_config.CanonicalPoints.inner_brow)
-        upper_nose = self._get_landmark(self.blend_shape_config.CanonicalPoints.upper_nose)
-        inner_brow_dist = self.dist(upper_nose, inner_brow)
-
-        brow_inner_up = self._remap_blendshape(FaceBlendShape.BrowInnerUp, inner_brow_dist)
-        self._face_data.set_blendshape(FaceBlendShape.BrowInnerUp, brow_inner_up)
-        # print(brow_inner_up)
-
-    def detect_cheek(self):
-        # Cheek is turned over left or right (will be higher when goes right up or left up) (will be 1 when nose also turn over)
-
-        cheek_squint_left = self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.cheek_squint_left[0]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.cheek_squint_left[1])
-        )
-
-        cheek_squint_right = self.dist(
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.cheek_squint_right[0]),
-            self._get_landmark(self.blend_shape_config.CanonicalPoints.cheek_squint_right[1])
-        )
-
-        cheek_squint_left_final = 1 - self._remap_blendshape(FaceBlendShape.CheekSquintLeft, cheek_squint_left)
-        self._face_data.set_blendshape(FaceBlendShape.CheekSquintLeft, cheek_squint_left_final)
-
-        cheek_squint_right_final = 1 - self._remap_blendshape(FaceBlendShape.CheekSquintRight, cheek_squint_right)
-        self._face_data.set_blendshape(FaceBlendShape.CheekSquintRight, cheek_squint_right_final)
-
-        # print(cheek_squint_right_final)
-
-        # ----------------------------------------------
-
-        # just use the same values for cheeksquint for nose sneer, mediapipe deosn't seem to have a separate value for nose sneer
-        self._face_data.set_blendshape(
-            FaceBlendShape.NoseSneerLeft, self._face_data.get_blendshape(FaceBlendShape.CheekSquintLeft))
-        self._face_data.set_blendshape(
-            FaceBlendShape.NoseSneerRight, self._face_data.get_blendshape(FaceBlendShape.CheekSquintRight))
-    
-    def _pupil_position(self, side=None):
-        if side is None:
-            side = "RIGHT"
-        if side == "RIGHT":
-            canonical_points_eye = self.blend_shape_config.CanonicalPoints.eye_right
-            canonical_points_iris = self.blend_shape_config.CanonicalPoints.iris_right
-        if side == "LEFT":
-            canonical_points_eye = self.blend_shape_config.CanonicalPoints.eye_left
-            canonical_points_iris = self.blend_shape_config.CanonicalPoints.iris_left
-        
-        # Get landmarks for eye's outer corner, inner corner, and pupil.
-        eye_outer_corner = self._get_landmark(canonical_points_eye[0])
-        eye_inner_corner = self._get_landmark(canonical_points_eye[1])
-        pupil = self._get_landmark(canonical_points_iris["middle"])
-
-        # Calculate eye width and midpoint
-        eye_width = self.dist(eye_outer_corner, eye_inner_corner)
-        mid_point = [ 0.5 * (eye_outer_corner[0] + eye_inner_corner[0]), 0.5 * (eye_outer_corner[1] + eye_inner_corner[1]) ]
-
-        # Compute distances from midpoint to the pupil
-        dx = mid_point[0] - pupil[0]
-        dy = mid_point[1] - 0.075 * eye_width - pupil[1]
-    
-        # Normalize distances with respect to eye width
-        ratio_x = 4 * dx / (eye_width / 2)
-        ratio_y = 4 * dy / (eye_width / 4)
-
-        # Assuming you want to store the result in your _face_data.
-        # self._face_data.set_pupil_position({ 'x': ratio_x, 'y': ratio_y })  # You might want to adjust this line depending on how your program is structured.
-        
-        self.dx_max = max(self.dx_max, (ratio_x))
-        self.dy_max = max(self.dy_max, (ratio_y))
-        self.dx_min = min(self.dx_min, (ratio_x))
-        self.dy_min = min(self.dy_min, (ratio_y))
-
-        with open('pupil_position.json', 'a') as f:
-            json.dump({'dx':dx, 'dx_max': self.dx_max, "dx_min": self.dx_min, 'dy':dy, 'dy_max': self.dy_max,  'dy_min': self.dy_min }, f)
-            f.write('\n')
-
-        return ratio_x, ratio_y
-    
-    # Using EAR(Eye Aspect Ratio) for detecting blinks
-    def get_eye_open_ration(self,points):
-        eye_distance = self._eye_lid_distance(points)
-        max_ratio = 0.285
-        ratio = np.clip(eye_distance / max_ratio, 0, 2)
-        return ratio
-    def calculation_blink(self):
-        #Blinks
-        self.detect_blinks()
-        
-    def _lerp(self, v0, v1, t):
-        return (1 - t) * v0 + t * v1
-    
-    def call_stabilize_blink(self, low:0.40, high:0.70):
-        eye_l = self.get_eye_open_ration(self.blend_shape_config.CanonicalPoints.eye_left)
-        eye_l_normalized = self._remap(eye_l,low,high)
-        eye_r = self.get_eye_open_ration(self.blend_shape_config.CanonicalPoints.eye_right)
-        eye_r_normalized = self._remap(eye_r,low,high)
-        
-        eye = {'l': (eye_l_normalized or 0), 'r': (eye_r_normalized or 0)}
-        
-        head =self.calculate_head_pose()
-        return self.stabilize_blink(eye, head['y'], 0.5, True)
-
-    def stabilize_blink(self, eye:dict, headY:float, maxRot:0.5, enableWink:True):
-        # clip the eye values to the range [0, 1]
-        eye['r'] = np.clip(eye['r'], 0, 1)
-        eye['l'] = np.clip(eye['l'], 0, 1)
-        # calculate the difference between the left and right eye values
-        blinkDiff = abs(eye['l'] - eye['r'])
-        # set the threshold for detecting a wink based on the enableWink flag
-        blinkThresh = 0.8 if enableWink else 1.2
-        # check if the eyes are closing or open
-        isClosing = eye['l'] < 0.3 and eye['r'] < 0.3
-        isOpen = eye['l'] > 0.6 and eye['r'] > 0.6
-        self.eye_close = not isOpen
-        
-        ###After a certain rotation, the right eye should be equalized with the left eye or the left eye with the right eye. 
-        ###Because it cannot detect the other eye because it comes out of the camera angle.
-        
-        # # if the head is tilted to the right, return the right eye value for both eyes
-        # if headY > maxRot:
-        #     return {'l': eye['r'], 'r': eye['r']}
-        # # if the head is tilted to the left, return the left eye value for both eyes
-        # if headY < -maxRot:
-        #     return {'l': eye['l'], 'r': eye['l']}
-
-        # otherwise, return a weighted average of the left and right eye values
-        # depending on the blinkDiff and the isClosing and isOpen flags
-        return {
-            'l': self._lerp(eye['r'], eye['l'], 0.05) if blinkDiff < blinkThresh or isClosing or isOpen else eye['l'],
-            'r': self._lerp(eye['r'], eye['l'], 0.95) if blinkDiff < blinkThresh or isClosing or isOpen else eye['r'],
-        }
-
-    def calculate_head_pose(self):
-        
-        head_coords = {
-            "21": self._get_landmark(21),
-            "251": self._get_landmark(251),
-            "397": self._get_landmark(397),
-            "172": self._get_landmark(172),
-        }
-        
-        head_pose = self._calculate_head_pose.calcHead(head_coords)
-        
-        return head_pose
-        

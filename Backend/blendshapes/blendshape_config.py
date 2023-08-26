@@ -8,8 +8,8 @@ class BlendShapeConfig:
             # for better understanding of the points, see the canonical face model from mediaPipe
             # https://github.com/google/mediapipe/blob/master/mediapipe/modules/face_geometry/data/canonical_face_model_uv_visualization.png
 
-            eye_right = [33, 133, 160, 159, 158, 144, 145, 153]
-            eye_left = [263, 362, 387, 386, 385, 373, 374, 380]
+            eye_right = [33, 133, 160, 159, 158, 144, 145, 153, 173]
+            eye_left = [263, 362, 387, 386, 385, 373, 374, 380, 398]
             head = [10, 152]
             nose_tip = 1
             upper_lip = 13
@@ -58,19 +58,19 @@ class BlendShapeConfig:
             
         # blend shape type, min and max value
         config = {
-            FaceBlendShape.EyeBlinkLeft : (0.40, 0.70),
+            FaceBlendShape.EyeBlinkLeft : (0.16, 1.213),
             FaceBlendShape.EyeLookOutLeft : (2.675, 3.585), #EyeLookUpRight(0.32, 1.12)
             FaceBlendShape.EyeLookOutRight : (0, 2.00), #EyeLookInLeft
-            FaceBlendShape.EyeLookUpRight : (2.2, 3.7), #EyeLookInRight
+            FaceBlendShape.EyeLookUpRight : (2.3, 3.7), #EyeLookInRight
             FaceBlendShape.EyeLookUpLeft : (2.675, 3.585), #EyeLookUpLeft (0.31, 1.10)W
-            FaceBlendShape.EyeSquintLeft : (0.37, 0.6),
+            FaceBlendShape.EyeSquintLeft : (0.4, 0.63),
             FaceBlendShape.EyeWideLeft : (0.9, 1.2),
-            FaceBlendShape.EyeBlinkRight : (0.40, 0.70),
-            FaceBlendShape.EyeLookDownLeft : (2.6, 4.20), #EyeLookOutLeft
-            FaceBlendShape.EyeLookDownRight : (-1.6, -0.95), #EyeLookDownLeft (0.26, 1.17)
+            FaceBlendShape.EyeBlinkRight : (0.175, 1.22),
+            FaceBlendShape.EyeLookDownLeft : (2.7, 4.20), #EyeLookOutLeft
+            FaceBlendShape.EyeLookDownRight : (-1.50, -1.00), #EyeLookDownLeft (0.26, 1.17)
             FaceBlendShape.EyeLookInLeft : (0.40, 2.10), #EyeLookOutRight
-            FaceBlendShape.EyeLookInRight : (-1.70, -1.00), #EyeLookDownRight (0.25, 1.01)
-            FaceBlendShape.EyeSquintRight : (0.37, 0.6),
+            FaceBlendShape.EyeLookInRight : (-1.60, -1.10), #EyeLookDownRight (0.25, 1.01)
+            FaceBlendShape.EyeSquintRight : (0.4, 0.63),
             FaceBlendShape.EyeWideRight : (0.9, 1.2),
             # FaceBlendShape.JawForward : (-0.4, 0.0),
             FaceBlendShape.JawLeft : (-0.4, 0.0),
@@ -98,13 +98,14 @@ class BlendShapeConfig:
             FaceBlendShape.MouthShrugLower : (1.9, 2.3),
             FaceBlendShape.MouthShrugUpper : (1.4, 2.4),
             FaceBlendShape.MouthPressLeft : (0.4, 0.5),
+            
             FaceBlendShape.MouthPressRight : (0.4, 0.5),
             FaceBlendShape.MouthLowerDownLeft : (1.7, 2),
             FaceBlendShape.MouthLowerDownRight : (1.7, 2),
             # FaceBlendShape.MouthUpperUpLeft : (-0.4, 0.0),
             # FaceBlendShape.MouthUpperUpRight : (-0.4, 0.0),
-            FaceBlendShape.BrowDownLeft : (1.0, 1.2),
-            FaceBlendShape.BrowDownRight : (1.0, 1.2),
+            FaceBlendShape.BrowDownLeft : (0.7, 1.2),
+            FaceBlendShape.BrowDownRight : (0.7, 1.2),
             FaceBlendShape.BrowInnerUp : (2.2, 2.6),
             FaceBlendShape.BrowOuterUpLeft : (1.25, 1.5),
             FaceBlendShape.BrowOuterUpRight : (1.25, 1.5),
