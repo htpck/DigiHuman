@@ -57,6 +57,9 @@ public enum BlendShapes : int
     EyeLookUpRight,// New blend shape
     EyeLookUpLeft,// New blend shape
     TongueOut, //tongue
+    TongueMouthOpen,
+    TongueMouthRight,
+    TongueMouthLeft,
     FaceEyeLookDownLeft,
     FaceEyeLookDownRight,
     FaceEyeLookUpLeft,
@@ -76,7 +79,11 @@ public enum BlendShapes : int
     EyelashesEyeSquintLeft,
     EyelashesEyeSquintRight,
     EyelashesEyeWideLeft,
-    EyelashesEyeWideRight
+    EyelashesEyeWideRight,
+    MouthOpenLowerTeeth,
+    MouthRightLowerTeeth,
+    MouthLeftLowerTeeth
+
 
 
 }//23 nodes for now
@@ -180,13 +187,16 @@ public class FacialExpressionHandler : MonoBehaviour
         BlendShapeController.MouthLowerDownLeft.weight = faceBlendNodes[(int) BlendShapes.MouthLowerDownLeft].weight;
         BlendShapeController.MouthPressLeft.weight = faceBlendNodes[(int) BlendShapes.MouthPressLeft].weight;
         BlendShapeController.MouthPressRight.weight = faceBlendNodes[(int) BlendShapes.MouthPressRight].weight;
-        BlendShapeController.MouthOpen.weight = faceBlendNodes[(int) BlendShapes.MouthOpen].weight;
+        BlendShapeController.MouthOpen.weight = faceBlendNodes[(int) BlendShapes.MouthOpen].weight; //Actually change JawOpen also, normal JawOpen doesn't work.
+        BlendShapeController.MouthOpenLowerTeeth.weight = faceBlendNodes[(int)BlendShapes.JawOpen].weight;
         BlendShapeController.MouthPucker.weight = faceBlendNodes[(int) BlendShapes.MouthPucker].weight;
         BlendShapeController.MouthShrugUpper.weight = faceBlendNodes[(int) BlendShapes.MouthShrugUpper].weight;
         BlendShapeController.MouthShrugLower.weight = faceBlendNodes[(int) BlendShapes.MouthShrugLower].weight;
         BlendShapeController.JawOpen.weight = faceBlendNodes[(int) BlendShapes.JawOpen].weight;
         BlendShapeController.JawLeft.weight = faceBlendNodes[(int) BlendShapes.JawLeft].weight;
+        BlendShapeController.MouthLeftLowerTeeth.weight = faceBlendNodes[(int)BlendShapes.JawLeft].weight;
         BlendShapeController.JawRight.weight = faceBlendNodes[(int) BlendShapes.JawRight].weight;
+        BlendShapeController.MouthRightLowerTeeth.weight = faceBlendNodes[(int)BlendShapes.JawRight].weight;
         BlendShapeController.BrowDownLeft.weight = faceBlendNodes[(int) BlendShapes.BrowDownLeft].weight;
         BlendShapeController.BrowOuterUpLeft.weight = faceBlendNodes[(int) BlendShapes.BrowOuterUpLeft].weight;
         BlendShapeController.BrowDownRight.weight = faceBlendNodes[(int) BlendShapes.BrowDownRight].weight;
@@ -209,8 +219,6 @@ public class FacialExpressionHandler : MonoBehaviour
         BlendShapeController.EyeLookOutRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookOutRight].weight;
         BlendShapeController.EyeLookUpRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookUpRight].weight;
         BlendShapeController.EyeLookUpLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookUpLeft].weight;
-
-        BlendShapeController.TongueOut.weight = faceBlendNodes[(int)BlendShapes.TongueOut].weight;
 
         BlendShapeController.FaceEyeLookDownLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookDownLeft].weight;
         BlendShapeController.FaceEyeLookDownRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookDownRight].weight;
@@ -235,6 +243,16 @@ public class FacialExpressionHandler : MonoBehaviour
         BlendShapeController.EyelashesEyeWideRight.weight = faceBlendNodes[(int)BlendShapes.EyeWideRight].weight;
         BlendShapeController.EyelashesEyeBlinkLeft.weight = faceBlendNodes[(int)BlendShapes.EyeBlinkLeft].weight;
         BlendShapeController.EyelashesEyeBlinkRight.weight = faceBlendNodes[(int)BlendShapes.EyeBlinkRight].weight;
+
+        BlendShapeController.TongueOut.weight = faceBlendNodes[(int)BlendShapes.TongueOut].weight;
+        BlendShapeController.TongueMouthOpen.weight = faceBlendNodes[(int)BlendShapes.JawOpen].weight;
+        BlendShapeController.TongueMouthRight.weight = faceBlendNodes[(int)BlendShapes.JawRight].weight;
+        BlendShapeController.TongueMouthLeft.weight = faceBlendNodes[(int)BlendShapes.JawLeft].weight;
+
+
+
+
+
 
 
         BlendShapeController.UpdateBlendShape();

@@ -54,7 +54,8 @@ class BlendShapeConfig:
                 "upper":475,
                 "right":476,
                 "lower":477
-            }
+            },
+            tongue_out = 52
             
         # blend shape type, min and max value
         config = {
@@ -93,8 +94,8 @@ class BlendShapeConfig:
             # FaceBlendShape.MouthDimpleRight : (-0.4, 0.0),
             FaceBlendShape.MouthStretchLeft : (-0.4, 0.0),
             FaceBlendShape.MouthStretchRight : (-0.4, 0.0),
-            FaceBlendShape.MouthRollLower : (0.4, 0.7),
-            FaceBlendShape.MouthRollUpper : (0.31, 0.34),
+            FaceBlendShape.MouthRollLower : (0.0, 0.51),
+            FaceBlendShape.MouthRollUpper : (0.62,0.72),
             FaceBlendShape.MouthShrugLower : (1.9, 2.3),
             FaceBlendShape.MouthShrugUpper : (1.4, 2.4),
             FaceBlendShape.MouthPressLeft : (0.4, 0.5),
@@ -114,7 +115,7 @@ class BlendShapeConfig:
             FaceBlendShape.CheekSquintRight : (0.55, 0.63),
             # FaceBlendShape.NoseSneerLeft : (-0.4, 0.0),
             # FaceBlendShape.NoseSneerRight : (-0.4, 0.0),
-            FaceBlendShape.TongueOut : (-0.4, 0.0),
+            FaceBlendShape.TongueOut : (0.0, 1.0),
             # FaceBlendShape.HeadYaw : (-0.4, 0.0),
             # FaceBlendShape.HeadPitch : (-0.4, 0.0),
             # FaceBlendShape.HeadRoll : (-0.4, 0.0),
