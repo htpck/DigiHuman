@@ -2,7 +2,6 @@
 import numpy as np
 import math
 
-from regex import B
 from .facedata import FaceBlendShape
 from .blendshape_config import BlendShapeConfig
 

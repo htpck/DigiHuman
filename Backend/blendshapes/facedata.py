@@ -2,12 +2,6 @@ from __future__ import annotations
 from collections import deque
 from statistics import mean
 from enum import Enum
-import struct
-from typing import Tuple
-import datetime
-import uuid
-
-
 
 class FaceBlendShape(Enum):
     EyeBlinkLeft = 0
