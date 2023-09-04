@@ -202,6 +202,9 @@ def Calculate_Face_Mocap(path=None,debug=False):
                     blends.append(face_data.get_blendshape(FaceBlendShape.EyeLookUpLeft))
                     
                     blends.append(face_data.get_blendshape(FaceBlendShape.TongueOut))
+                    blends.append(face_data.get_blendshape(FaceBlendShape.FaceSuprise))
+                    blends.append(face_data.get_blendshape(FaceBlendShape.CheekPuff))
+                    blends.append(face_data.get_blendshape(FaceBlendShape.MouthFunnel))
                     
 
                     frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
@@ -220,9 +223,6 @@ def Calculate_Face_Mocap(path=None,debug=False):
             if cv2.waitKey(5) & 0xFF == 27:
                 break
     cap.release()
-
-
-
 
 def face_holistic(video_path,debug=False):
     mp_drawing = mp.solutions.drawing_utils

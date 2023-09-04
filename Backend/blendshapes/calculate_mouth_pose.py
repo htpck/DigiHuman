@@ -1,9 +1,7 @@
 import numpy as np
-from sympy import false
 from . import utils
 from .facedata import FaceBlendShape, FaceData
 from .blendshape_config import BlendShapeConfig
-from . import utils
 import random
 import json
 
@@ -21,14 +19,13 @@ class CalculateMouthPose:
     jaw_direction_state = True
     mouth_roll_state = True
     mouth_shrug_state = False
-    mouth_lower_direction_state = True
+    mouth_lower_direction_state = False
     lip_direction_state = True
     mouth_press_state = False
     
     def __init__(self) -> None:
         self.blend_shape_config = BlendShapeConfig()
-    
-    
+
     def after_init(self, landmarks, normalized_landmarks, face_data: FaceData):
         self.landmarks = landmarks
         self.normalized_landmarks = normalized_landmarks
@@ -74,9 +71,6 @@ class CalculateMouthPose:
 
     def calculate_mouth_landmarks(self):
         self.calculate_initial_mouth_landmarks()
-
-        if self.mouth_pucker_state: 
-            self.calculate_pucker_ratio()
         
         if self.mouth_open_close_state:
             self.calculate_mouth_open_close()
@@ -100,11 +94,12 @@ class CalculateMouthPose:
             self.detect_Jaw_direction(self.nose_tip, self.lowest_chin)
 
         if self.mouth_roll_state:         
-            uppest_lip = self._get_landmark(0)
+            uppest_lip = self._get_landmark(self.blend_shape_config.CanonicalPoints.uppest_lip)
             lowest_lip = self._get_landmark(self.blend_shape_config.CanonicalPoints.lowest_lip)
             under_lip = self._get_landmark(self.blend_shape_config.CanonicalPoints.under_lip)
 
-            self.detect_Mouth_Roll(self.lower_lip, self.upper_lip, self.upper_outer_lip, lowest_lip)
+            self.detect_Mouth_Roll(self.lower_lip, self.upper_lip, uppest_lip, lowest_lip)
+            
         if self.mouth_shrug_state:
             self.calculate_mouth_shrug()
 
@@ -113,9 +108,14 @@ class CalculateMouthPose:
 
         if self.lip_direction_state:
             self.calculate_lip_direction()
+            
+        if self.mouth_pucker_state: 
+            self.calculate_pucker_ratio()
 
         if self.mouth_press_state:
             self.detect_mouth_press()
+            
+        self.cheek_puff_detect()
     
     #################CALCULATE-SIDE#####################
    
@@ -136,24 +136,37 @@ class CalculateMouthPose:
         self.mouth_center = (self.upper_lip + self.lower_lip) / 2
         self.mouth_open_dist = utils.dist(self.upper_lip, self.lower_lip)
         self.mouth_center_nose_dist = utils.dist(self.mouth_center, self.nose_tip)
+        self.jaw_open_dist = utils.dist(self.lowest_chin, self.nose_tip)
+        
+        # with open('jaw_open_dist.json', 'a') as f:
+        #     json.dump(
+                
+        #         {'jaw_open_dist':self.jaw_open_dist }
+                
+        #         , f)
+        #     f.write('\n')
+            
         
         #utils.dist(self.nose_tip, self._get_landmark(152))
+    
     def calculate_pucker_ratio(self):
-        self.pucker_ratio = self.detect_mouth_pucker(self.mouth_width, self.mouth_open_dist * 18)
+        self.detect_mouth_pucker(self.mouth_width, self.mouth_open_dist * 18)   
     
     def calculate_mouth_open_close(self):
-        
-        with open('mouth_position.json', 'a') as f:
-            json.dump(
+        mouth_open = 0
+        # with open('mouth_position.json', 'a') as f:
+        #     json.dump(
                 
-                {'mouth_width':self.mouth_width, "mouth_open_dist": self.mouth_open_dist,'mouth_center_nose_dist': self.mouth_center_nose_dist }
+        #         {'mouth_width':self.mouth_width, "mouth_open_dist": self.mouth_open_dist,'mouth_center_nose_dist': self.mouth_center_nose_dist }
                 
-                , f)
-            f.write('\n')
+        #         , f)
+        #     f.write('\n')
         #mouth_close = utils._remap_blendshape(FaceBlendShape.MouthClose, self.mouth_center_nose_dist - self.mouth_open_dist)
-        mouth_open = utils._remap_blendshape(FaceBlendShape.MouthOpen, self.mouth_open_dist/self.mouth_width) #mouth aspect ratio
-        if((self.mouth_width <= 4.5 and self.mouth_open_dist <= 0.5)):
-            mouth_open *= 0.01
+        if self.jaw_open_dist > 9.15:
+            mouth_open = utils._remap_blendshape(FaceBlendShape.MouthOpen, self.mouth_open_dist/self.mouth_width) #mouth aspect ratio
+            if((self.mouth_width <= 4.5 and self.mouth_open_dist <= 0.5)):
+                mouth_open *= 0.01
+                
         self._face_data.set_blendshape(FaceBlendShape.MouthOpen, mouth_open)
         #self._face_data.set_blendshape(FaceBlendShape.MouthClose, mouth_close)
         #write json file data here
@@ -195,9 +208,22 @@ class CalculateMouthPose:
         # upper lip direction
         self.calculate_lip_direction_helper("upper")
 
-    def calculate_lip_direction_helper(self, lip_side): 
+    def calculate_lip_direction_helper(self, lip_side, state=True): 
         #detect corners lip direction
         # self.detect_lip_direction(mouth_open,mouth_left,mouth_right)
+        
+        if state == False:
+            self._face_data.set_blendshape(FaceBlendShape.LipLowerDownLeft, 0)
+            self._face_data.set_blendshape(FaceBlendShape.LipLowerDownRight, 0)
+            return
+        
+        write_json = {
+            "lower_lip_dist_left_f": 0,
+            "lower_lip_dist_right_f": 0,
+            "upper_lip_dist_left_f": 0,
+            "upper_lip_dist_right_f": 0,
+        }
+        
         #lower lip
         if lip_side == "lower":
             lower_down_left = utils.dist(self._get_landmark(
@@ -211,10 +237,14 @@ class CalculateMouthPose:
                 91), self._get_landmark(135))
 
 
-            lower_down_left_lip = 1 - utils._remap_blendshape(FaceBlendShape.LipLowerDownLeft, (lower_down_left + lower_down_left2)/2.0)
+            lower_down_left_final = 1 - utils._remap_blendshape(FaceBlendShape.LipLowerDownLeft, (lower_down_left + lower_down_left2)/2.0)
             lower_down_right_final = 1 - utils._remap_blendshape(FaceBlendShape.LipLowerDownRight,(lower_down_right + lower_down_right2)/2.0)
-            self._face_data.set_blendshape(FaceBlendShape.LipLowerDownLeft, lower_down_left_lip)
+            self._face_data.set_blendshape(FaceBlendShape.LipLowerDownLeft, lower_down_left_final)
             self._face_data.set_blendshape(FaceBlendShape.LipLowerDownRight, lower_down_right_final)
+            
+            write_json["lower_lip_dist_left_f"] = (lower_down_left + lower_down_left2)/2.0
+            write_json["lower_lip_dist_right_f"] = (lower_down_right + lower_down_right2)/2.0
+            
 
         # upper lip
         if lip_side == "upper":
@@ -228,25 +258,18 @@ class CalculateMouthPose:
             upper_up_right2 = utils.dist(self._get_landmark(
                 40), self._get_landmark(36))
 
-            upper_up_left_lip = 1 - utils._remap_blendshape(FaceBlendShape.LipUpperUpLeft, (upper_up_left + upper_up_left2)/2.0)
+            upper_up_left_final = 1 - utils._remap_blendshape(FaceBlendShape.LipUpperUpLeft, (upper_up_left + upper_up_left2)/2.0)
             upper_up_right_final = 1 - utils._remap_blendshape(FaceBlendShape.LipUpperUpRight,(upper_up_right + upper_up_right2)/2.0)
-            self._face_data.set_blendshape(FaceBlendShape.LipUpperUpLeft, upper_up_left_lip)
+            self._face_data.set_blendshape(FaceBlendShape.LipUpperUpLeft, upper_up_left_final)
             self._face_data.set_blendshape(FaceBlendShape.LipUpperUpRight, upper_up_right_final)
-        # down_term1 = utils.dist(self._get_landmark(321), self._get_landmark(395)) if lip_side == "lower" else utils.dist(self._get_landmark(270), self._get_landmark(425))
-        # down_term2 = utils.dist(self._get_landmark(321), self._get_landmark(364)) if lip_side == "lower" else utils.dist(self._get_landmark(270), self._get_landmark(266))
-
-        # down_left = 1 - utils._remap_blendshape(eval(f"FaceBlendShape.Lip{lip_side.capitalize()}DownLeft"), (down_term1 + down_term2)/2.0)
-
-        # self._face_data.set_blendshape(eval(f"FaceBlendShape.Lip{lip_side.capitalize()}DownLeft"), down_left)
-
-        # down_term1 = utils.dist(self._get_landmark(91), self._get_landmark(170)) if lip_side == "lower" else utils.dist(self._get_landmark(40), self._get_landmark(205))
-        # down_term2 = utils.dist(self._get_landmark(91), self._get_landmark(135)) if lip_side == "lower" else utils.dist(self._get_landmark(40), self._get_landmark(36))
-
-        # down_right_final = 1 - utils._remap_blendshape(eval(f"FaceBlendShape.Lip{lip_side.capitalize()}DownRight"), (down_term1 + down_term2)/2.0)
-
-        # self._face_data.set_blendshape(eval(f"FaceBlendShape.Lip{lip_side.capitalize()}DownRight"), down_right_final)
-
-
+            
+            write_json["upper_lip_dist_left_f"] = (upper_up_left + upper_up_left2)/2.0
+            write_json["upper_lip_dist_right_f"] = (upper_up_right + upper_up_right2)/2.0
+            
+        
+        with open('lip_direction.json', 'a') as f:
+            json.dump(write_json, f)
+            f.write('\n')
 
 
         # really hard to do this, mediapipe is not really moving here
@@ -359,12 +382,25 @@ class CalculateMouthPose:
     # when your mouth roll and shrink this will be near to 1
     def detect_Mouth_Roll(self,lower_lip,upper_lip,upper_outer_lip,lowest_lip):
 
-        outer_lip_dist = utils.dist(lower_lip, lowest_lip)
+        lower_lip_dist = utils.dist(lower_lip, lowest_lip)
         upper_lip_dist = utils.dist(upper_lip, upper_outer_lip)
         self._face_data.set_blendshape(
-            FaceBlendShape.MouthRollLower, 1 - utils._remap_blendshape(FaceBlendShape.MouthRollLower, outer_lip_dist))
+            FaceBlendShape.MouthRollLower, 1 - utils._remap_blendshape(FaceBlendShape.MouthRollLower, lower_lip_dist))
         self._face_data.set_blendshape(
             FaceBlendShape.MouthRollUpper, 1 - utils._remap_blendshape(FaceBlendShape.MouthRollUpper, upper_lip_dist))
+
+        # with open('mouth_roll_position.json', 'a') as f:
+        #     json.dump(
+                
+        #         {
+        #             'lower_lip_dist':lower_lip_dist,
+        #             "reel_lower_lip_dist": 1 - utils._remap_blendshape(FaceBlendShape.MouthRollLower, lower_lip_dist),
+        #             "upper_lip_dist": upper_lip_dist,
+        #             "reel_upper_lip_dist": 1 - utils._remap_blendshape(FaceBlendShape.MouthRollUpper, upper_lip_dist),
+        #         }
+                
+        #         , f)
+        #     f.write('\n')
 
     def detect_Jaw_direction(self,nose_tip,lowest_chin):
         #Jaw left right
@@ -456,24 +492,140 @@ class CalculateMouthPose:
 
         #------------------------------------------------------------------
 
-    def detect_mouth_pucker(self,mouth_width,mouth_open_dist):
-        if mouth_width > 4.5:
+    def detect_mouth_pucker(self, mouth_width, mouth_open_dist):
+        # Use descriptive variable names and avoid magic numbers
+        min_mouth_width = 4.6
+        min_mouth_open_dist = 25
+        min_mouth_pucker_width = 4.5
+        min_mouth_pucker_open_dist = 5
+
+        # Initialize the mouth pucker value to zero
+        mouth_pucker = 0.0
+        
+        # Check if the mouth is funneling (narrow and open)
+        if mouth_width <= min_mouth_width and mouth_open_dist > min_mouth_open_dist:
+            # Remap the mouth width to a value between 0 and 1
+            mapped_value = 1 - utils._remap_blendshape(FaceBlendShape.MouthFunnel, mouth_width)
+            
+            # Calculate the average of the mapped value and the mouth open distance
+            average = np.average([mapped_value, mouth_open_dist])
+            
+            # Remap the average to a value between 0 and 1
+            mapped_value_funnel = utils._remap_blendshape(FaceBlendShape.MouthFunnel, average)
+            
+            # Set the blendshape for the mouth funnel to the mapped value
+            self._face_data.set_blendshape(FaceBlendShape.MouthFunnel, mapped_value_funnel)
+            
+            # Set the blendshape for the mouth pucker to zero
             self._face_data.set_blendshape(FaceBlendShape.MouthPucker, 0.0)
-            return 0.0
-        mouth_pucker = utils._remap_blendshape(
-            FaceBlendShape.MouthPucker, mouth_open_dist/mouth_width)
-        # self._face_data.set_blendshape(
-        #     FaceBlendShape.MouthPucker, 1 - mouth_pucker)
-        self._face_data.set_blendshape(
-            FaceBlendShape.MouthPucker, mouth_pucker)
-
-        # print(mouth_pucker)
-
-        # mouth funnel only can be seen if mouth pucker is really small
-        if self._face_data.get_blendshape(FaceBlendShape.MouthPucker) < 0.5:
-            self._face_data.set_blendshape(
-                FaceBlendShape.MouthFunnel, 1 - utils._remap_blendshape(FaceBlendShape.MouthFunnel, mouth_width))
+            
+            # Return from the function
+            return
         else:
+            # Set the blendshape for the mouth funnel to zero
             self._face_data.set_blendshape(FaceBlendShape.MouthFunnel, 0)
         
-        return mouth_pucker
+        # Check if the mouth is not puckering (wide and open)
+        if mouth_width > min_mouth_pucker_width and mouth_open_dist > min_mouth_pucker_open_dist:
+            # Set the blendshape for the mouth pucker to zero
+            self._face_data.set_blendshape(FaceBlendShape.MouthPucker, 0.0)
+        else:
+            # Remap the ratio of the mouth open distance and width to a value between 0 and 1
+            mouth_pucker = utils._remap_blendshape(
+                FaceBlendShape.MouthPucker, mouth_open_dist / mouth_width)
+            
+            # Set the blendshape for the mouth pucker to the remapped value
+            self._face_data.set_blendshape(
+                FaceBlendShape.MouthPucker, mouth_pucker)
+            
+            # If the mouth pucker is more than half, calculate the lip direction for upper and lower lips
+            if mouth_pucker > 0.5:
+                self.calculate_lip_direction_helper("lower", False)
+                self.calculate_lip_direction_helper("upper", False)  
+
+    def cheek_puff_detect(self):
+            # Use descriptive variable names and avoid magic numbers
+            left_cheek_index = 213
+            right_cheek_index = 433
+            upper_lip_index = 13
+            lower_lip_index = 14
+            left_mouth_corner_index = 61
+            right_mouth_corner_index = 291
+            nose_tip_index = 1
+            chin_index = 17
+            
+
+            # The minimum and maximum distance between the left and right cheeks
+            min_cheek_distance = 2.50
+            max_cheek_distance = 3.45
+
+            # The minimum and maximum distance between the upper and lower lips
+            min_lip_distance = 0
+            max_lip_distance = 2
+
+            # The minimum and maximum distance between the mouth corners
+            min_mouth_corner_distance = 4.2
+            max_mouth_corner_distance = 5.7
+            
+            # The minimum and maximum distance between the nose tip and the chin
+            min_nose_chin_distance = 3.5
+            max_nose_chin_distance = 5.5
+
+
+            # Get the landmarks for the left and right cheeks, upper and lower lips, and mouth corners
+            left_cheek = self._get_landmark(left_cheek_index)        
+            right_cheek = self._get_landmark(right_cheek_index)
+            upper_lip = self._get_landmark(upper_lip_index)
+            lower_lip = self._get_landmark(lower_lip_index)
+            left_mouth_corner = self._get_landmark(left_mouth_corner_index)
+            right_mouth_corner = self._get_landmark(right_mouth_corner_index)
+            nose_tip = self._get_landmark(nose_tip_index)
+            chin = self._get_landmark(chin_index)
+
+            # Calculate the distance between the cheeks, lips, and mouth corners
+            cheek_distance = utils.dist(left_cheek, right_cheek)
+            lip_distance = utils.dist(upper_lip, lower_lip)
+            mouth_corner_distance = utils.dist(left_mouth_corner, right_mouth_corner)
+            nose_chin_distance = utils.dist(nose_tip, chin)
+
+
+            
+            # Map the distances to values between 0 and 1
+            cheek_value = utils.map_value(cheek_distance, min_cheek_distance, max_cheek_distance, 0, 1)
+            lip_value = 1 - utils.map_value(lip_distance * 9, min_lip_distance, max_lip_distance, 0, 1) if lip_distance < 0.05 else 0
+            mouth_corner_value = 1 - utils.map_value(mouth_corner_distance, min_mouth_corner_distance, max_mouth_corner_distance, 0, 1) if mouth_corner_distance < 5.5 else 0
+            nose_chin_value =  1 - utils.map_value(nose_chin_distance, min_nose_chin_distance, max_nose_chin_distance, 0, 1)
+
+            
+            #Actually I use different purpose _lerp function just for cheek puff
+            #jaw_open_dist_interp = utils._lerp(jaw_open_dist, min_jaw_open_dist, max_jaw_open_dist)
+            
+            # Calculate the cheek puff value as a weighted average of the three values
+            cheek_puff_value_avg = (cheek_value *0.5 + mouth_corner_value  + nose_chin_value * 5 if cheek_distance > 12.70 and nose_chin_value > 0.58 else nose_chin_value * 8  ) / 3
+            
+            if lip_distance > 0.2:
+                cheek_puff_value_avg = 0
+            
+            # Map the cheek puff value to a blendshape value
+            cheek_puff_value = utils._remap_blendshape(FaceBlendShape.CheekPuff, cheek_puff_value_avg)
+            
+            # Set the blendshape for the cheek puff
+            self._face_data.set_blendshape(FaceBlendShape.CheekPuff, cheek_puff_value)
+            
+            
+            with open('deneme3.json', 'a') as f:
+                json.dump(
+                    
+                    {
+                        'cheek_distance': cheek_distance,
+                        'mouth_corner_distance': mouth_corner_distance,
+                        'mouth_corner_value': mouth_corner_value,
+                        'nose_chin_distance': nose_chin_distance,
+                        'nose_chin_value': nose_chin_value,
+                        'lip_distance': lip_distance,
+                        'avarage': cheek_puff_value,
+                        # 'is_cheek_movement': True if cheek_puff_value > 0 else False,
+                    }
+                    
+                    , f)
+                f.write('\n')

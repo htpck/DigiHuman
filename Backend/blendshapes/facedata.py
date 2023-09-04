@@ -70,15 +70,16 @@ class FaceBlendShape(Enum):
     BrowInnerUp = 63
     BrowOuterUpLeft = 64
     BrowOuterUpRight = 65
+    FaceSuprise = 66
 class FaceData:
 
     def __init__(self,filter_size: int = 5) -> None:
 
         # properties
         self._filter_size = filter_size
-        self._blend_shapes = [0.000] * 66
+        self._blend_shapes = [0.000] * 67
         self._old_blend_shapes = []  # used for filtering
-        for i in range(66):
+        for i in range(67):
             self._old_blend_shapes.append(deque([0.0], maxlen=self._filter_size))
 
 

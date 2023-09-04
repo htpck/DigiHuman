@@ -57,35 +57,9 @@ public enum BlendShapes : int
     EyeLookUpRight,// New blend shape
     EyeLookUpLeft,// New blend shape
     TongueOut, //tongue
-    TongueMouthOpen,
-    TongueMouthRight,
-    TongueMouthLeft,
-    FaceEyeLookDownLeft,
-    FaceEyeLookDownRight,
-    FaceEyeLookUpLeft,
-    FaceEyeLookUpRight,
-    FaceEyeLookInLeft,
-    FaceEyeLookInRight,
-    FaceEyeLookOutLeft,
-    FaceEyeLookOutRight,
-    EyelashesEyeLookDownLeft,
-    EyelashesEyeLookDownRight,
-    EyelashesEyeLookUpLeft,
-    EyelashesEyeLookUpRight,
-    EyelashesEyeLookInLeft,
-    EyelashesEyeLookInRight,
-    EyelashesEyeLookOutLeft,
-    EyelashesEyeLookOutRight,
-    EyelashesEyeSquintLeft,
-    EyelashesEyeSquintRight,
-    EyelashesEyeWideLeft,
-    EyelashesEyeWideRight,
-    MouthOpenLowerTeeth,
-    MouthRightLowerTeeth,
-    MouthLeftLowerTeeth
-
-
-
+    FaceSuprise,
+    CheekPuff,
+    MouthFunnel
 }//23 nodes for now
 
 [Serializable]
@@ -123,7 +97,7 @@ public class FacialExpressionHandler : MonoBehaviour
     {
         BlendShapeController = character.GetComponentInChildren<BlendShapeController>();
         
-        faceBlendNodes = new FaceBlendData[68];//number of current processable nodes
+        faceBlendNodes = new FaceBlendData[53];//number of current processable nodes
         for (int i = 0; i < faceBlendNodes.Length; i++)
         {
             faceBlendNodes[i] = new FaceBlendData();
@@ -229,6 +203,7 @@ public class FacialExpressionHandler : MonoBehaviour
         BlendShapeController.FaceEyeLookOutLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookOutLeft].weight;
         BlendShapeController.FaceEyeLookOutRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookOutRight].weight;
 
+        //EyeLashes same as eye look weights for now
         BlendShapeController.EyelashesEyeLookDownLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookDownLeft].weight;
         BlendShapeController.EyelashesEyeLookDownRight.weight = faceBlendNodes[(int)BlendShapes.EyeLookDownRight].weight;
         BlendShapeController.EyelashesEyeLookUpLeft.weight = faceBlendNodes[(int)BlendShapes.EyeLookUpLeft].weight;
@@ -244,10 +219,18 @@ public class FacialExpressionHandler : MonoBehaviour
         BlendShapeController.EyelashesEyeBlinkLeft.weight = faceBlendNodes[(int)BlendShapes.EyeBlinkLeft].weight;
         BlendShapeController.EyelashesEyeBlinkRight.weight = faceBlendNodes[(int)BlendShapes.EyeBlinkRight].weight;
 
+        //tongue blend shapes same as mouth(jaw) blend shapes for now
         BlendShapeController.TongueOut.weight = faceBlendNodes[(int)BlendShapes.TongueOut].weight;
         BlendShapeController.TongueMouthOpen.weight = faceBlendNodes[(int)BlendShapes.JawOpen].weight;
         BlendShapeController.TongueMouthRight.weight = faceBlendNodes[(int)BlendShapes.JawRight].weight;
         BlendShapeController.TongueMouthLeft.weight = faceBlendNodes[(int)BlendShapes.JawLeft].weight;
+
+        BlendShapeController.FaceSuprise.weight = faceBlendNodes[(int)BlendShapes.FaceSuprise].weight;
+        BlendShapeController.TongueSuprise.weight = faceBlendNodes[(int)BlendShapes.FaceSuprise].weight;
+        BlendShapeController.LowerTeethSuprise.weight = faceBlendNodes[(int)BlendShapes.FaceSuprise].weight;
+
+        BlendShapeController.CheekPuff.weight = faceBlendNodes[(int)BlendShapes.CheekPuff].weight;
+        BlendShapeController.MouthFunnel.weight = faceBlendNodes[(int)BlendShapes.MouthFunnel].weight;
 
 
 
