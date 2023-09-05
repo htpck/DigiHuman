@@ -97,9 +97,7 @@ def GauGanRunner(output_color_file):
         print(static_image_location)
     return  static_image_location
 
-
-
-
+ 
 #for round robin process
 def process_queue():
     while True:
@@ -118,9 +116,7 @@ def process_queue():
             print("process {} finished".format(file_name))
 
 
-
 app = Flask(__name__)
-
 
 # filename = path to video, json_array_len= how many frames data should be sent per request
 def calculate_video_pose_estimation(file_name):
@@ -162,9 +158,6 @@ def calculate_video_full_pose_estimation(file_name):
     # return pose_estimator.Pose_Video(file_name)
 
 
-
-
-
 def calculate_video_mocap_estimation(file_name):
     global face_pose_video_data
     global face_pose_video_data_statues
@@ -172,12 +165,6 @@ def calculate_video_mocap_estimation(file_name):
     for i in mediaPipeFace.Calculate_Face_Mocap(file_name):
         face_pose_video_data[file_name].append(i)
     face_pose_video_data_statues[file_name] = True #means process is finished
-
-
-
-
-
-
 
 
 @app.route("/hand", methods=["POST"])
@@ -207,7 +194,6 @@ def get_frame_hand_pose():
         return Response("Good luck!")
 
 
-
 @app.route("/holistc", methods=["POST"])
 def get_frame_full_pose():
 
@@ -235,7 +221,6 @@ def get_frame_full_pose():
         return Response("Good luck!")
 
 
-
 #TODO better ending connection "Done!"
 @app.route("/face", methods=["POST"])  # Hard-coded login route
 def get_frame_facial_expression():
@@ -258,7 +243,6 @@ def get_frame_facial_expression():
                 return Response("Done")
     except:
         return Response("Good luck!")
-
 
 
 @app.route("/pose", methods=["POST"])  # Hard-coded login route
@@ -382,7 +366,6 @@ def upload_hand_video():
         return 'file uploaded successfully'
 
 
-
 # processing received file
 @app.route('/holisticUploader', methods=['GET', 'POST'])
 def upload_holistic_video():
@@ -422,7 +405,6 @@ def upload_holistic_video():
                 print("Wrong input!")
                 return "Oops!"
         return 'file uploaded successfully'
-
 
 
 @app.route('/faceUploader', methods=['GET', 'POST'])
@@ -467,15 +449,9 @@ def upload_face_video():
                 return "Oops!"
         return 'file uploaded successfully'
 
-
-
-
 def run_server():
     
     app.run(debug=True)
-
-
-
 
 
 def exit_handler():
