@@ -22,7 +22,7 @@ public class GauGanClient : MonoBehaviour
     public void SendAndReceiveSketch()
     {
         string dirPath = drawable.SaveTexturePng();
-        networkManager.UploadImageGauGan(dirPath,SaveImage);
+        //networkManager.UploadImageGauGan(dirPath,SaveImage);
     }
 
     private void SaveImage(NetworkManager.UploadResponse response, byte[] bytes)

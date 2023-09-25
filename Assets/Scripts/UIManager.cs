@@ -13,13 +13,13 @@ public enum WaitingModeUI
 
 public class UIManager : MonoSingleton<UIManager>
 {
-    
-    [Header("Requirements")] 
+
+    [Header("Requirements")]
     [SerializeField] private FrameReader frameReader;
     [SerializeField] private Canvas canvas;
 
-    
-    [Header("ProgressBars and Loading")] 
+
+    [Header("ProgressBars and Loading")]
     [SerializeField] private Image progressBarImage;
     [SerializeField] private TextMeshProUGUI progressBarText;
     [SerializeField] private GameObject waitingUI; //full background color for progressbar and loading
@@ -31,7 +31,7 @@ public class UIManager : MonoSingleton<UIManager>
     // [SerializeField] private GameObject imageSlideShowPanel;
     // [SerializeField] private GameObject characterSlideShowPanel;
 
-    [Header("Upload Panel")] 
+    [Header("Upload Panel")]
     [SerializeField] private Color successDownloadColor;
     [SerializeField] private Image poseUploadCircleImage;
     [SerializeField] private Image poseUploadCompleteImage;
@@ -43,35 +43,35 @@ public class UIManager : MonoSingleton<UIManager>
     [SerializeField] private Image faceUploadCompleteImage;
 
 
-    [Header("Animation Control Panel")] 
+    [Header("Animation Control Panel")]
     [SerializeField] private Button animationPlayButton;
     [SerializeField] private Sprite pauseImage;
     [SerializeField] private Sprite resumeImage;
     [SerializeField] private Button saveAnimationButton;
     [SerializeField] private Button recordButton;
 
-    
-    [Header("Save Animation Panel")] 
+
+    [Header("Save Animation Panel")]
     [SerializeField] private GameObject saveAnimationPanel;
     [SerializeField] private TextMeshProUGUI animationNameText;
 
 
-    [Header("Camera Zoom Panel")] 
+    [Header("Camera Zoom Panel")]
     [SerializeField] private GameObject bodyZoomButton;
     [SerializeField] private GameObject faceZoomButton;
-    
-    
-    [Header("Messages")] 
+
+
+    [Header("Messages")]
     [SerializeField] private GameObject errorPanel;
     [SerializeField] private GameObject successPanel;
-    
+
 
     public void UpdateProgressBar(float percent)
     {
         progressBarImage.fillAmount = percent;
-        progressBarText.text = (percent*100).ToString("0.0") + "%";
+        progressBarText.text = (percent * 100).ToString("0.0") + "%";
     }
-    public void CheckAndEnableWaitingModeUI(WaitingModeUI waitingModeUI,bool enable)
+    public void CheckAndEnableWaitingModeUI(WaitingModeUI waitingModeUI, bool enable)
     {
         if (enable)
         {
@@ -95,22 +95,22 @@ public class UIManager : MonoSingleton<UIManager>
             waitingUI.SetActive(false);
         }
     }
-    
+
     //Messages
     public void ShowSuccessMessage(string message)
     {
         successPanel.SetActive(true);
         successPanel.GetComponentInChildren<TextMeshProUGUI>().text = message;
     }
-    
+
     public void ShowErrorMessage(string message)
     {
         errorPanel.SetActive(true);
         errorPanel.GetComponentInChildren<TextMeshProUGUI>().text = message;
     }
-    
-    
-    
+
+
+
     //Animation Actions
     public void OnPlayAnimationButtonClick()
     {
@@ -119,7 +119,7 @@ public class UIManager : MonoSingleton<UIManager>
             animationPlayButton.image.sprite = resumeImage;
         else
             animationPlayButton.image.sprite = pauseImage;
-        
+
     }
 
     public void ActiveAnimationControlPanel()
@@ -143,7 +143,7 @@ public class UIManager : MonoSingleton<UIManager>
     {
 
         string animationName = animationNameText.text;
-        bool result = FileManager.SaveAnimation(animationName,frameReader.GetFrameData());
+        bool result = FileManager.SaveAnimation(animationName, frameReader.GetFrameData());
         animationNameText.text = "";
         if (result)
         {
@@ -155,8 +155,8 @@ public class UIManager : MonoSingleton<UIManager>
         else
             ShowErrorMessage("Use another animation name!");
     }
-    
-    
+
+
     //Slides
     public void OnSlideShowEnter(GameObject panel)
     {
@@ -171,8 +171,8 @@ public class UIManager : MonoSingleton<UIManager>
         canvas.gameObject.SetActive(true);
         frameReader.ShowCharacter();
     }
-    
-    
+
+
     //Uploading
 
     public void OnUploadBodyPoseClick()
@@ -180,7 +180,7 @@ public class UIManager : MonoSingleton<UIManager>
         poseUploadCircleImage.color = Color.white;
         poseUploadCompleteImage.gameObject.SetActive(false);
         string filePath = FileManager.OpenFileVideoExplorer();
-        NetworkManager.Instancce.UploadAndEstimatePose(filePath);
+        NetworkManager.Instance.LoadJSONFileAndProcess(filePath);
     }
 
     public void OnPoseDataReceived()
@@ -195,10 +195,10 @@ public class UIManager : MonoSingleton<UIManager>
         handPoseUploadCircleImage.color = Color.white;
         handPoseUploadCompleteImage.gameObject.SetActive(false);
         string filePath = FileManager.OpenFileVideoExplorer();
-        NetworkManager.Instancce.UploadAndEstimateHandPose(filePath);
-        
+        NetworkManager.Instance.LoadJSONFileAndProcess(filePath);
+
     }
-    
+
     public void OnHandPoseDataReceived()
     {
         ShowSuccessMessage("Hands data downloaded successfully!");
@@ -206,8 +206,8 @@ public class UIManager : MonoSingleton<UIManager>
         handPoseUploadCompleteImage.gameObject.SetActive(true);
         frameReader.ArrangeDataFrames();
     }
-    
-    
+
+
     public void OnUploadFullPoseClick()
     {
         handPoseUploadCircleImage.color = Color.white;
@@ -215,10 +215,10 @@ public class UIManager : MonoSingleton<UIManager>
         handPoseUploadCompleteImage.gameObject.SetActive(false);
         poseUploadCompleteImage.gameObject.SetActive(false);
         string filePath = FileManager.OpenFileVideoExplorer();
-        NetworkManager.Instancce.UploadAndEstimateFullPose(filePath);
-        
+        NetworkManager.Instance.LoadJSONFileAndProcess(filePath);
+
     }
-    
+
     public void OnFullPoseDataReceived()
     {
         ShowSuccessMessage("Full pose data downloaded successfully!");
@@ -228,14 +228,14 @@ public class UIManager : MonoSingleton<UIManager>
         poseUploadCompleteImage.gameObject.SetActive(true);
         frameReader.ArrangeDataFrames();
     }
-    
-    
+
+
     public void OnUploadFacialExpressionClick()
     {
         faceUploadCircleImage.color = Color.white;
         faceUploadCompleteImage.gameObject.SetActive(false);
         string filePath = FileManager.OpenFileVideoExplorer();
-        NetworkManager.Instancce.UploadFaceMoacap(filePath,(() =>
+        NetworkManager.Instance.LoadJSONFileAndProcess(filePath, (() =>
         {
             frameReader.SetFaceOriginalVideo(filePath);
 
@@ -248,20 +248,20 @@ public class UIManager : MonoSingleton<UIManager>
         faceUploadCompleteImage.gameObject.SetActive(true);
         frameReader.ArrangeDataFrames();
     }
-    
 
-    
+
+
     //side panels
     public void SideBarPanelTrigger(Animator panel)
     {
-        panel.SetBool("BarTrigger",!panel.GetBool("BarTrigger"));
+        panel.SetBool("BarTrigger", !panel.GetBool("BarTrigger"));
     }
     public void SideBarButtonTrigger(Animator button)
     {
         button.SetTrigger("Rotate");
     }
-    
-    
+
+
     //Camera Zoom actions
     public void OnFaceZoomClicked()
     {
@@ -269,7 +269,7 @@ public class UIManager : MonoSingleton<UIManager>
         bodyZoomButton.SetActive(true);
         frameReader.SetFaceZoomCamera();
     }
-    
+
     public void OnFullBodyZoomClicked()
     {
         faceZoomButton.SetActive(true);
@@ -277,7 +277,7 @@ public class UIManager : MonoSingleton<UIManager>
         frameReader.SetBodyZoomCamera();
     }
 
-    
+
     //Recorder
     public void OnRecorderClick()
     {

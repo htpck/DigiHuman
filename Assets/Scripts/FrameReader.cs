@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
-[Serializable] 
+[Serializable]
 public struct BodyPart
 {
     public float x;
@@ -25,7 +25,7 @@ public class PoseJson
     public float width;
     public float height;
     public int frame;
-    
+
 }
 
 
@@ -63,7 +63,7 @@ public class HandJsonVector
     public int frame;
 }
 
-[Serializable] 
+[Serializable]
 public struct BodyPartVector
 {
     public Vector3 position;
@@ -86,7 +86,7 @@ public class FrameData
     public PoseJsonVector poseData;
     public FaceJson faceData;
     public HandJsonVector handData;
-    
+
     public int frame;
 }
 
@@ -99,8 +99,8 @@ public class FrameReader : MonoBehaviour
     public VideoPlayer videoPlayer;
     private List<FrameData> frameData;
     private FrameData currentFrameData;
-    
-    
+
+
     [Header("Fractions to multiply by pose estimates")]
     public float fraction = 1.2f;
     public float fractionX = 1.2f;
@@ -110,13 +110,13 @@ public class FrameReader : MonoBehaviour
     private float videoFractionX = 1;
     private float videoFractionY = 1;
     private float videoFractionZ = 1;
-    
+
     [Header("Frame rate")]
     [SerializeField] private float nextFrameTime;
 
     private int currentAnimationSlot = 0;
-    
-    
+
+
     //Body pose
     private List<PoseJsonVector> estimatedPoses;
     [HideInInspector] public PoseJson currentPoseJson;
@@ -124,13 +124,13 @@ public class FrameReader : MonoBehaviour
     [HideInInspector] public PoseJsonVector currentPoseJsonVectorNew;
     [HideInInspector] public int poseIndex;
 
-    
+
     //Hand pose
     private List<HandJsonVector> estimatedHandPose;
     [HideInInspector] public HandJsonVector currentHandJsonVector;
     [HideInInspector] public HandJsonVector currentHandJsonVectorNew;
     [HideInInspector] public int handIndex;
-    
+
     //facial mocap
     private List<FaceJson> estimatedFacialMocap;
     [HideInInspector] public FaceJson currentFaceJson;
@@ -138,33 +138,33 @@ public class FrameReader : MonoBehaviour
     [HideInInspector] public int faceIndex;
 
 
-    [Header("3D Character")] 
+    [Header("3D Character")]
     [SerializeField] private GameObject character;
     [SerializeField] private bool enableFace;
-    [SerializeField] private bool enableHands=true;
+    [SerializeField] private bool enableHands = true;
 
-    [Header("PlayController")] 
+    [Header("PlayController")]
     public bool pause = true;
 
     [SerializeField] private Slider slider;
-    
+
     [SerializeField] private bool enableVideo;
 
 
-    [Header("Camera Zoom")] 
+    [Header("Camera Zoom")]
     [SerializeField] private Transform bodyZoomCameraPlace;
     [SerializeField] private Transform faceZoomCameraPlace;
     [SerializeField] private Camera camera;
-    
-    [Header("Debug")] 
+
+    [Header("Debug")]
     [SerializeField] private bool debug;
 
     [SerializeField] private bool readFromFileHand;
     [SerializeField] private TextAsset jsonTestHand;
-    
+
     [SerializeField] private bool readFromFace;
     [SerializeField] private TextAsset jsonTestFace;
-    
+
     [SerializeField] private bool readFromFilePose;
     [SerializeField] private TextAsset jsonTestPose;
 
@@ -172,9 +172,9 @@ public class FrameReader : MonoBehaviour
     [SerializeField] private string path = "C:\\Danial\\Projects\\Danial\\DigiHuman\\Backend\\hand_json\\";
     [SerializeField] private bool onlyCurrentIndex;
 
-    [Header("Recording")] 
+    [Header("Recording")]
     [SerializeField] private GameObject recorder;
-    
+
     private Quaternion characterRotation;
     private void Start()
     {
@@ -203,9 +203,9 @@ public class FrameReader : MonoBehaviour
         }
         else
         {
-            if(readFromFilePose)
+            if (readFromFilePose)
                 jsonTest = jsonTestPose.text;
-            if(readFromFileHand)
+            if (readFromFileHand)
                 jsonTest = jsonTestHand.text;
             if (readFromFace)
                 jsonTest = jsonTestFace.text;
@@ -246,7 +246,7 @@ public class FrameReader : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(nextFrameTime);
-            currentAnimationSlot = (int) slider.value;
+            currentAnimationSlot = (int)slider.value;
             if (debug)
             {
                 // videoPlayer.frame = fileIndex-1;
@@ -388,13 +388,13 @@ public class FrameReader : MonoBehaviour
 
         }
     }
-    
+
     private void FixedUpdate()
     {
 
 
 
-        if(!pause)
+        if (!pause)
             timer += Time.fixedDeltaTime;
         currentAnimationSlot = (int)slider.value;
         if (debug)
@@ -405,7 +405,7 @@ public class FrameReader : MonoBehaviour
             if (timer > nextFrameTime)
             {
                 timer = 0;
-                if(!onlyCurrentIndex)
+                if (!onlyCurrentIndex)
                     fileIndex += 1;
             }
             try
@@ -418,8 +418,8 @@ public class FrameReader : MonoBehaviour
                 throw;
                 Console.Write(e);
             }
-            
-            
+
+
 
             return;
         }
@@ -439,7 +439,7 @@ public class FrameReader : MonoBehaviour
                 if (videoPlayer.time < currentFaceJson.time / 1000.0f)
                     return;
                 if (!videoPlayer.isPaused &&
-                    Mathf.Abs((float) (videoPlayer.time - (currentFaceJson.time / 1000.0f))) > 0.2f &&
+                    Mathf.Abs((float)(videoPlayer.time - (currentFaceJson.time / 1000.0f))) > 0.2f &&
                     currentFaceJson.time != 0.0f)
                 {
                     videoPlayer.Pause();
@@ -450,8 +450,8 @@ public class FrameReader : MonoBehaviour
                 }
             }
         }
-        
-        
+
+
         // //body pose
         // if (poseIndex < estimatedPoses.Count)
         // {
@@ -474,7 +474,7 @@ public class FrameReader : MonoBehaviour
         // }
 
         //Current Frame data
-        
+
         currentFrameData = frameData[currentAnimationSlot];
         //Body
         currentPoseJsonVector = currentPoseJsonVectorNew;
@@ -486,9 +486,9 @@ public class FrameReader : MonoBehaviour
         // currentFaceJson = currentFaceJsonNew;
         // currentFaceJsonNew = currentFrameData.faceData;
         currentFaceJson = currentFrameData.faceData;
-        
+
         if (timer >= nextFrameTime)
-        {  
+        {
             if (debug)
             {
                 videoPlayer.frame = frameData[currentAnimationSlot].frame;
@@ -507,7 +507,7 @@ public class FrameReader : MonoBehaviour
             //-------- Body Pose ------
             if (currentPoseJsonVector != null)
             {
-                
+
                 //TODO change maybe looking for 5 frames later!
                 if (currentPoseJsonVectorNew != null)
                 {
@@ -529,7 +529,7 @@ public class FrameReader : MonoBehaviour
             {
                 if (currentHandJsonVectorNew != null)
                 {
-                    if(currentHandJsonVector.handsR.Length == currentHandJsonVectorNew.handsR.Length)
+                    if (currentHandJsonVector.handsR.Length == currentHandJsonVectorNew.handsR.Length)
                         //for each bone position in the current frame
                         for (int i = 0; i < currentHandJsonVector.handsR.Length; i++)
                         {
@@ -538,7 +538,7 @@ public class FrameReader : MonoBehaviour
                                 currentHandJsonVectorNew.handsR[i].position,
                                 timer / nextFrameTime);
                         }
-                    if(currentHandJsonVector.handsL.Length == currentHandJsonVectorNew.handsL.Length)
+                    if (currentHandJsonVector.handsL.Length == currentHandJsonVectorNew.handsL.Length)
                         //for each bone position in the current frame
                         for (int i = 0; i < currentHandJsonVector.handsL.Length; i++)
                         {
@@ -576,7 +576,7 @@ public class FrameReader : MonoBehaviour
             // if(currentFaceJson != null)
             //     if(videoPlayer.frame > currentFaceJson.frame || pause)
             //         videoPlayer.frame = currentFaceJson.frame;
-            
+
 
         }
         catch (Exception e)
@@ -590,10 +590,10 @@ public class FrameReader : MonoBehaviour
     private void OnAnimationPlayFinish()
     {
         videoPlayer.Pause();
-        if(recording)
+        if (recording)
             StopRecording();
     }
-    
+
     // private void Update()
     // {
     //     timer += Time.deltaTime;
@@ -662,16 +662,16 @@ public class FrameReader : MonoBehaviour
         poseJsonVector.height = poseJson.height;
         for (int i = 0; i < len; i++)
         {
-            poseJsonVector.predictions[i].position = fraction * new Vector3(-poseJson.predictions[i].x*fractionX * videoFractionX,
-                -poseJson.predictions[i].y*fractionY*videoFractionY,poseJson.predictions[i].z*fractionZ*videoFractionZ);
+            poseJsonVector.predictions[i].position = fraction * new Vector3(-poseJson.predictions[i].x * fractionX * videoFractionX,
+                -poseJson.predictions[i].y * fractionY * videoFractionY, poseJson.predictions[i].z * fractionZ * videoFractionZ);
             poseJsonVector.predictions[i].visibility = poseJson.predictions[i].visibility;
-            
+
         }
 
         return poseJsonVector;
     }
-    
-    
+
+
     private HandJsonVector GetHandsVector(HandJson handJson)
     {
         int len = handJson.handsR.Length;
@@ -683,20 +683,20 @@ public class FrameReader : MonoBehaviour
         for (int i = 0; i < len; i++)
         {
             BodyPart data = handJson.handsR[i];
-            handJsonVector.handsR[i].position = new Vector3(data.x * fractionX,-data.y * fractionY,-data.z * fractionZ);
+            handJsonVector.handsR[i].position = new Vector3(data.x * fractionX, -data.y * fractionY, -data.z * fractionZ);
             handJsonVector.handsR[i].visibility = data.visibility;
         }
 
         for (int i = 0; i < len2; i++)
         {
             BodyPart data = handJson.handsL[i];
-            handJsonVector.handsL[i].position = new Vector3(data.x * fractionX,-data.y * fractionY,-data.z * fractionZ);
+            handJsonVector.handsL[i].position = new Vector3(data.x * fractionX, -data.y * fractionY, -data.z * fractionZ);
             handJsonVector.handsL[i].visibility = data.visibility;
         }
         return handJsonVector;
     }
-    
-    
+
+
     public void SetHandPoseList(List<HandJson> estimated)
     {
         framesLoaded = false;
@@ -704,13 +704,13 @@ public class FrameReader : MonoBehaviour
         currentHandJsonVector = GetHandsVector(estimated[0]);
         foreach (HandJson poseJson in estimated)
         {
-            estimatedHandPose.Add(GetHandsVector(poseJson));            
+            estimatedHandPose.Add(GetHandsVector(poseJson));
         }
         Debug.Log(estimatedHandPose.Count);
-        Debug.Log(estimatedHandPose[estimatedHandPose.Count/2].handsL.Length);
-        Debug.Log(estimatedHandPose[estimatedHandPose.Count/2].handsR.Length);
+        Debug.Log(estimatedHandPose[estimatedHandPose.Count / 2].handsL.Length);
+        Debug.Log(estimatedHandPose[estimatedHandPose.Count / 2].handsR.Length);
     }
-    
+
 
     public void SetPoseList(List<PoseJson> estimated)
     {
@@ -719,11 +719,11 @@ public class FrameReader : MonoBehaviour
         currentPoseJsonVectorNew = GetBodyPartsVector(estimated[0]);
         foreach (PoseJson poseJson in estimated)
         {
-            estimatedPoses.Add(GetBodyPartsVector(poseJson));            
+            estimatedPoses.Add(GetBodyPartsVector(poseJson));
         }
         Debug.Log(estimated.Count);
     }
-    
+
     public void SetFaceMocapList(List<FaceJson> estimated)
     {
         framesLoaded = false;
@@ -772,7 +772,7 @@ public class FrameReader : MonoBehaviour
             {
                 bodyFrame = int.MaxValue; //no more frames!
             }
-            
+
             if (handIndex < estimatedHandPose.Count)
             {
                 handFrame = estimatedHandPose[handIndex].frame;
@@ -781,7 +781,7 @@ public class FrameReader : MonoBehaviour
             {
                 handFrame = int.MaxValue; //no more frames!
             }
-            
+
             if (faceIndex < estimatedFacialMocap.Count)
             {
                 faceFrame = estimatedFacialMocap[faceIndex].frame;
@@ -792,10 +792,10 @@ public class FrameReader : MonoBehaviour
             }
 
             minFrame = Mathf.Min(bodyFrame, handFrame, faceFrame);
-            
-            if(minFrame == Int32.MaxValue)
+
+            if (minFrame == Int32.MaxValue)
                 break;
-            
+
             FrameData currentFrameData = new FrameData();
             if (bodyFrame == minFrame)
             {
@@ -825,7 +825,7 @@ public class FrameReader : MonoBehaviour
 
     public FrameData[] GetFrameData()
     {
-        
+
         Debug.Log(frameData.ToArray().Length);
         return frameData.ToArray();
     }
@@ -844,7 +844,7 @@ public class FrameReader : MonoBehaviour
 
     public void SetNewCharacter(GameObject newCharacter)
     {
-      
+
         character.SetActive(false);
         character = newCharacter;
         pose3DMapper.SetCharacter(character);
@@ -887,10 +887,10 @@ public class FrameReader : MonoBehaviour
 
     public void HideCharacter()
     {
-        
+
         character.SetActive(false);
     }
-    
+
     public void ShowCharacter()
     {
         character.SetActive(true);
@@ -898,21 +898,21 @@ public class FrameReader : MonoBehaviour
 
     public void OnTogglePlay()
     {
-        if(enableVideo && videoPlayer.url != "")
+        if (enableVideo && videoPlayer.url != "")
             nextFrameTime = 1 / videoPlayer.frameRate;
         timer = 10;
         videoPlayer.frame = 0;
-        
+
         pause = !pause;
         // videoPlayer.Play();
-        if(enableVideo && videoPlayer.url != "")
+        if (enableVideo && videoPlayer.url != "")
             test();
 
         // nextFrameTime = (float) (videoPlayer.length / videoPlayer.frameCount);
 
         // StartCoroutine(TestCo());
         // Invoke("test",1.5f);
-    
+
     }
 
 
@@ -921,7 +921,7 @@ public class FrameReader : MonoBehaviour
     private bool recording = false;
     public void StartRecording()
     {
-        if(!pause)
+        if (!pause)
             return;
         UIManager.Instancce.DeActiveAnimationControlPanel();
         recorder.SetActive(true);
@@ -936,12 +936,12 @@ public class FrameReader : MonoBehaviour
         UIManager.Instancce.ActiveAnimationControlPanel();
         UIManager.Instancce.ShowSuccessMessage("Animation Recorded successfully!");
     }
-    
+
     private void test()
     {
-        
 
-        if(pause)
+
+        if (pause)
             videoPlayer.Pause();
         else
             videoPlayer.Play();
@@ -949,7 +949,7 @@ public class FrameReader : MonoBehaviour
 
     public void SetFaceOriginalVideo(string path)
     {
-        if(!enableVideo)
+        if (!enableVideo)
             return;
         videoPlayer.url = path;
         videoPlayer.Prepare();
@@ -957,7 +957,7 @@ public class FrameReader : MonoBehaviour
         videoPlayer.frame = 0;
         videoPlayer.Pause();
     }
-    
+
     //Set Camera Zoom
     public void SetFaceZoomCamera()
     {
@@ -966,7 +966,7 @@ public class FrameReader : MonoBehaviour
         recorder.transform.position = faceZoomCameraPlace.position;
         recorder.transform.rotation = faceZoomCameraPlace.rotation;
     }
-    
+
     public void SetBodyZoomCamera()
     {
         camera.transform.position = bodyZoomCameraPlace.position;
